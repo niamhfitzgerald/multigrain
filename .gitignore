@@ -13,3 +13,9 @@ debug/
 CLAUDE.md
 dev/diagrams/node_modules/
 
+
+# flu vaccine GSD work: confidential inputs and results stay local
+dev/review/flu_gsd/config_local.R
+dev/review/flu_gsd/runs/
+dev/review/flu_gsd/results/
+dev/review/flu_gsd/write_up.md
