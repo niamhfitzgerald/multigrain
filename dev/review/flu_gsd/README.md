@@ -3,7 +3,9 @@
 Scripts for optimising the multiplicity graph and the alpha-spending parameter
 of a two-season vaccine trial (interim at the end of season 1, final at the
 end of season 2, five hypotheses) with multigrain's group sequential
-extension. Runs on the `gsd-build` branch as it is.
+extension. Everything except `03c_gamma_in_package.R` runs on the `gsd-build`
+branch as it is; that script needs this branch installed (it adds
+`spending_bank_gsd()` and the bank input to `graph_optimise_gsd()`).
 
 The trial inputs are confidential. They live in `config_local.R`, which is
 git-ignored, as are `runs/` (optimiser output) and `results/`. Copy
@@ -30,7 +32,8 @@ season-1 decision times. See `gain_expr()` in `00_setup.R`.
 | `run_scenarios.R` | Optimises and evaluates a table of scenarios (rule, spending, S). Sourced by 01 and 02. |
 | `01_continue_regardless.R` | Task 1: no stopping, S = 1, 1.5, 2. |
 | `02_stopping_rules.R` | Tasks 2 to 4: protocol rule and alternative rule, OBF or Pocock on SUP_SID0, S = 1, 1.5, 2. |
-| `03_gamma.R` | Task 5: one Hwang-Shih-DeCani gamma shared by all hypotheses, optimised in an outer loop over the graph optimiser; `Rscript 03_gamma.R protocol 2`. |
+| `03_gamma.R`, `03b_gamma_per_hypothesis.R` | Task 5, first pass: gamma optimised in an outer loop over the graph optimiser (shared grid; per-hypothesis coordinate pass). |
+| `03c_gamma_in_package.R` | Task 5, inside multigrain: `spending_bank_gsd()` plus `graph_optimise_gsd(bank, spending_shared = TRUE/FALSE)` choose gamma alongside the graph, both rules, S = 1, 1.5, 2. Needs this branch's package build. |
 | `04_summary.R` | Summary table (`results/summary_table.md`) and the figures. |
 | `05_participants.R` | Extra participants per arm the protocol design would need to match each optimised design. |
 | `06_stopping_rule_notes.md` | User-testing notes on specifying a stopping rule, with reprexes in `reprex/` (no trial inputs). |

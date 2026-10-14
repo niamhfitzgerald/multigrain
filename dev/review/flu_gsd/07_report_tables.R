@@ -107,3 +107,28 @@ writeLines(sprintf("\\newcommand{\\%s}{%s}", c("stopcost", "pstopprotocol", "pst
                    c(f2(num[["stop_cost"]]), pc(num[["p_stop_protocol"]]), pc(num[["p_stop_alt"]]))),
            file.path(out_dir, "numbers.tex"))
 cat("Written to", out_dir, "\n")
+
+## Gamma inside the package (03c)
+gp_file <- result_path("gamma_in_package.csv")
+if (file.exists(gp_file)) {
+  gp <- fread(gp_file)
+  gp[, rule := factor(rule, levels = names(rule_lab))]
+  setorder(gp, rule, S, -mode)   # shared before per hypothesis
+  gam_cols <- paste0("gamma_", ids)
+  gl <- function(r) {
+    g <- as.numeric(r[, gam_cols, with = FALSE])
+    if (length(unique(g)) == 1L) formatC(g[1], format = "g") else paste(formatC(g, format = "g"), collapse = ", ")
+  }
+  rows <- gp[, .(rule_lab[as.character(rule)], formatC(S, format = "g"), mode,
+                 sapply(seq_len(.N), function(i) gl(.SD[i])),
+                 sprintf("%s (%s)", f2(gain), fse(se)), pc(p_stop),
+                 f2(gain_opt_graph_protocol_spending),
+                 sprintf("%s (%s)", sgn(diff_vs_protocol_design), fse(se_design)),
+                 sgn(diff_vs_opt_graph_protocol_spending))]
+  rows[duplicated(rows[, 1]), 1] <- ""
+  write_tab("gamma_in_package.tex",
+            c("Stopping rule", "$S$", "$\\gamma$", "Chosen $\\gamma$\\\\(NI ILI, SUP ILI 0\\%, NI SID,\\\\SUP ILI 9.1\\%, SUP SID 0\\%)",
+              "Optimised graph\\\\and $\\gamma$ (SE)", "Stops at\\\\season 1", "Optimised graph,\\\\protocol spending",
+              "vs protocol\\\\design (SE)", "vs optimised graph,\\\\protocol spending"),
+            rows, "lrlcrrrrr", midrules = seq(6, nrow(rows) - 1, by = 6))
+}
