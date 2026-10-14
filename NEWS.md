@@ -1,5 +1,15 @@
 # multigrain (development version)
 
+## New functionality
+
+* `spending_bank_gsd()` transforms one array of raw group sequential p-values
+  once per candidate spending function and keeps the results together. Passing
+  the bank to `graph_optimise_gsd()` makes the choice of spending function part
+  of the optimisation: one candidate shared by every hypothesis
+  (`spending_shared = TRUE`, the default) or one per hypothesis. The choice is
+  made in the global stage; the local stage and the pruning run on the chosen
+  spending functions, and the result reports them in its `spending` element.
+
 ## Bug fixes
 
 * `graph_optimise()` and `calc_power_pvals()` now refuse a gain function created

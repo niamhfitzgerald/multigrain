@@ -21,6 +21,13 @@
 #' @param K (integer) Number of analyses.
 #' @param alpha (numeric scalar) Overall one-sided significance level. Default
 #'   is 0.025.
+#' @param bank_array Optional. The array returned by `.gsd_bank_array()`
+#'   (simulations by `m * K` by candidate). When supplied, `pvals` is ignored
+#'   and the last `1` (shared) or `m` (per hypothesis) elements of `x` are
+#'   spending genes in `[0, 1]`, mapped to a candidate by
+#'   `.gsd_spending_choice()`; the kernel matrix is assembled per evaluation.
+#' @param spending_shared (logical) With a bank, whether one spending gene is
+#'   shared by every hypothesis (`TRUE`) or each hypothesis has its own.
 #' @inheritParams graph_optimise_gsd
 #'
 #' @returns A function with signature `function(x)` that evaluates the trial
@@ -36,7 +43,9 @@ create_obj_func_gsd <- function(
     pvals,
     K, # nolint: object_name_linter. K is the design record's symbol
     alpha = 0.025,
-    num_threads = 1L
+    num_threads = 1L,
+    bank_array = NULL,
+    spending_shared = TRUE
 ) {
     force(power_criterion)
     force(hyp_constraint)
@@ -45,10 +54,26 @@ create_obj_func_gsd <- function(
     force(pvals)
     force(K)
     force(num_threads)
+    force(bank_array)
+    force(spending_shared)
 
     use_parallel <- num_threads >= 2L
+    use_bank <- !is.null(bank_array)
+    n_spend <- if (!use_bank) 0L else if (spending_shared) 1L else m
+    n_cand <- if (use_bank) dim(bank_array)[[3L]] else 0L
 
     function(x) {
+        if (use_bank) {
+            n_graph <- length(x) - n_spend
+            genes <- x[seq.int(n_graph + 1L, length(x))]
+            if (anyNA(genes) || any(genes < 0) || any(genes > 1)) {
+                return(-1e6)
+            }
+            choice <- .gsd_spending_choice(genes, n_cand, m)
+            pvals <- .gsd_assemble_kernel(bank_array, choice, m, K)
+            x <- x[seq_len(n_graph)]
+        }
+
         theta <- split_theta(x, hyp_constraint)
         hyp_weight <- recover_full_weights(theta$w_pars, hyp_constraint)
         trans_matrix <- recover_full_trans_matrix(

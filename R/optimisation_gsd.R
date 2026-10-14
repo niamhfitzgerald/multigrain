@@ -21,7 +21,9 @@
 #'   scores.
 #'
 #' @param pvals A `multigrain_pvals_gsd` object of repeated (or, per
-#'   hypothesis, sequential) p-values, created with [transform_pvalues_gsd()].
+#'   hypothesis, sequential) p-values, created with [transform_pvalues_gsd()];
+#'   or a `multigrain_pvals_gsd_bank` from [spending_bank_gsd()], in which
+#'   case the spending function is optimised too (see `spending_shared`).
 #' @param graph_constraint A `multigrain_graph_constraint` object containing
 #'   constraints on the graph's weights and transition matrix. Created with
 #'   [graph_constraint()].
@@ -36,6 +38,14 @@
 #'   A supplied value must be greater than `0` and at most the level the
 #'   repeated p-values were built up to: above that they are capped at 1, so
 #'   no allocation beyond it could ever reject.
+#' @param spending_shared A logical. Only used when `pvals` is a
+#'   `multigrain_pvals_gsd_bank` (see [spending_bank_gsd()]). `TRUE` (the
+#'   default) optimises one choice of spending function shared by every
+#'   hypothesis; `FALSE` optimises a separate choice per hypothesis. The
+#'   choice is made in the global stage, which must therefore be on; the local
+#'   stage and the pruning then run on the chosen spending functions. The
+#'   result carries the choice in its `spending` element, and `power` is
+#'   evaluated on the assembled p-values.
 #' @param start_graph Optional. Initial list of graphs suggested. Each graph is
 #'   defined as a list containing starting weight vector `hyp_weight` and
 #'   transition matrix `trans_matrix`. If `NULL`, default starting values are
@@ -81,9 +91,16 @@
 #'   optimisation was performed.
 #' * `local_output`: Output from the NLOPT optimisation.
 #' * `start_graph`: Initial starting values used in the optimisation.
+#' * `spending` (only when `pvals` is a bank): a list with `index` and
+#'   `label`, the chosen candidate for each hypothesis; `shared`; and
+#'   `candidates`, the bank's labels.
+#' * `pvals_chosen` (only when `pvals` is a bank): the `multigrain_pvals_gsd`
+#'   object assembled from the chosen candidates, for use with
+#'   [calc_power_pvals_gsd()].
 #'
 #' @seealso [graph_optimise()] for the fixed-sample version,
-#'   [transform_pvalues_gsd()] for the p-value object and
+#'   [transform_pvalues_gsd()] for the p-value object,
+#'   [spending_bank_gsd()] to optimise the spending function as well, and
 #'   [trial_success_gsd()] for the gain.
 #'
 #' @export
@@ -125,6 +142,7 @@ graph_optimise_gsd <- function(
     trial_success,
     ...,
     alpha = NULL,
+    spending_shared = TRUE,
     start_graph = list(
         list(
             hyp_weight = NULL,
@@ -136,13 +154,29 @@ graph_optimise_gsd <- function(
     control = multigrain_control(),
     verbose = multigrain_verbosity()
 ) {
-    check_pvals_gsd(pvals)
+    use_bank <- is_pvals_gsd_bank(pvals)
+    if (!use_bank) {
+        check_pvals_gsd(pvals)
+    }
     check_graph_constraint(graph_constraint)
     check_trial_success_gsd(trial_success)
     rlang::check_dots_empty()
     rlang::check_number_whole(num_threads, min = 1)
     check_control(control)
     check_logical(global_search, allow_na = FALSE)
+    check_logical(spending_shared, allow_na = FALSE)
+
+    if (use_bank && !global_search) {
+        cli::cli_abort(
+            c(
+                "A spending bank needs the global search.",
+                x = "{.arg global_search} is {.val FALSE}.",
+                i = "The choice of spending function is made in the global \
+                stage; pass one {.cls multigrain_pvals_gsd} object to \
+                optimise the graph alone."
+            )
+        )
+    }
 
     if (isTRUE(verbose)) {
         verbose <- "info"
@@ -174,6 +208,7 @@ graph_optimise_gsd <- function(
 
     ga_result <- NULL
     x0_for_local <- NULL
+    spending_choice <- NULL
 
     if (global_search) {
         ga_result <- .graph_optimise_ga_gsd(
@@ -185,12 +220,20 @@ graph_optimise_gsd <- function(
             start_graph = start_graph,
             global_opts = control$global_opt,
             num_threads = num_threads,
-            verbose = verbose
+            verbose = verbose,
+            spending_shared = spending_shared
         )
+
+        if (use_bank) {
+            # From here on the pipeline sees the chosen spending functions as
+            # an ordinary `multigrain_pvals_gsd` object.
+            spending_choice <- ga_result$spending_choice
+            pvals <- .gsd_assemble_pvals(pvals, spending_choice)
+        }
 
         x0_for_local <- pmin(
             pmax(
-                ga_result$ga_output@solution[1, ],
+                ga_result$graph_solution,
                 0
             ),
             1
@@ -246,7 +289,7 @@ graph_optimise_gsd <- function(
     names(clean_graph$hyp_weight) <- gc_names
     dimnames(clean_graph$trans_matrix) <- list(gc_names, gc_names)
 
-    graph_optimal(
+    out <- graph_optimal(
         hyp_weight = clean_graph$hyp_weight,
         trans_matrix = clean_graph$trans_matrix,
         constraints = graph_constraint,
@@ -269,6 +312,18 @@ graph_optimise_gsd <- function(
         local_output = local_result$local_output,
         start_graph = start_graph
     )
+
+    if (use_bank) {
+        out$spending <- list(
+            index = stats::setNames(spending_choice, gc_names),
+            label = stats::setNames(pvals$spending, gc_names),
+            shared = spending_shared,
+            candidates = ga_result$spending_labels
+        )
+        out$pvals_chosen <- pvals
+    }
+
+    out
 }
 
 #' @export
@@ -383,7 +438,8 @@ control_prepare_dims <- function(
             trans_matrix = NULL
         )
     ),
-    verbose = c("info", "detail", "silent")
+    verbose = c("info", "detail", "silent"),
+    spending_shared = TRUE
 ) {
     verbose <- rlang::arg_match(verbose)
 
@@ -392,20 +448,53 @@ control_prepare_dims <- function(
     }
 
     x0 <- .build_start_matrix(graph_constraint, start_graph)
+    n_graph <- ncol(x0)
 
-    pvals_sampled <- .sample_pvals_gsd(pvals, nsim)
+    use_bank <- is_pvals_gsd_bank(pvals)
+    bank_array <- NULL
+    spending_labels <- NULL
+    n_cand <- 0L
+    m <- trial_success$m
+
+    if (use_bank) {
+        bank_sampled <- .sample_pvals_gsd_bank(pvals, nsim)
+        bank_array <- .gsd_bank_array(bank_sampled)
+        spending_labels <- pvals$labels
+        n_cand <- length(pvals$bank)
+        n_spend <- if (spending_shared) 1L else m
+
+        # Seed every candidate: each starting graph is repeated once per
+        # candidate, with all hypotheses on that candidate. The gene value is
+        # the midpoint of the candidate's interval.
+        mids <- (seq_len(n_cand) - 0.5) / n_cand
+        x0 <- do.call(
+            rbind,
+            lapply(mids, function(g) {
+                cbind(x0, matrix(g, nrow = nrow(x0), ncol = n_spend))
+            })
+        )
+        x0 <- unique(x0, MARGIN = 1)
+        storage.mode(x0) <- "double"
+        pvals_sampled <- NULL
+        kernel_sampled <- NULL
+    } else {
+        pvals_sampled <- .sample_pvals_gsd(pvals, nsim)
+        kernel_sampled <- .gsd_kernel_matrix(pvals_sampled)
+    }
 
     immutable_global_args <- list(
         type = "real-valued",
         fitness = create_obj_func_gsd(
-            m = trial_success$m,
+            m = m,
             power_criterion = trial_success$func,
             hyp_constraint = graph_constraint$hyp_constraint,
             trans_constraint = graph_constraint$trans_constraint,
             alpha = alpha,
-            pvals = .gsd_kernel_matrix(pvals_sampled),
+            pvals = kernel_sampled,
             K = pvals$K,
-            num_threads = num_threads
+            num_threads = num_threads,
+            bank_array = bank_array,
+            spending_shared = spending_shared
         ),
         lower = rep(0, ncol(x0)),
         upper = rep(1, ncol(x0)),
@@ -422,6 +511,17 @@ control_prepare_dims <- function(
 
     ga_res <- do.call(GA::ga, ga_args)
     best_raw <- ga_res@solution[1, ]
+
+    spending_choice <- NULL
+    if (use_bank) {
+        genes <- best_raw[seq.int(n_graph + 1L, length(best_raw))]
+        spending_choice <- .gsd_spending_choice(genes, n_cand, m)
+        best_raw <- best_raw[seq_len(n_graph)]
+        # Evaluate on the chosen spending functions from here on
+        pvals_sampled <- .gsd_assemble_pvals(bank_sampled, spending_choice)
+        pvals <- .gsd_assemble_pvals(pvals, spending_choice)
+    }
+
     sol <- param_to_solution(best_raw, graph_constraint, process = TRUE)
 
     is_valid <- is_graph_valid(sol$hyp_weight, sol$trans_matrix)
@@ -460,7 +560,10 @@ control_prepare_dims <- function(
         ga_trial_success = ga_trial_success,
         ga_subset_power = ga_subset_power,
         is_graph_valid = is_valid,
-        ga_output = ga_res
+        ga_output = ga_res,
+        graph_solution = best_raw,
+        spending_choice = spending_choice,
+        spending_labels = spending_labels
     )
 }
 

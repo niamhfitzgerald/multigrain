@@ -12,6 +12,7 @@ graph_optimise_gsd(
   trial_success,
   ...,
   alpha = NULL,
+  spending_shared = TRUE,
   start_graph = list(list(hyp_weight = NULL, trans_matrix = NULL)),
   global_search = TRUE,
   num_threads = 1L,
@@ -21,7 +22,9 @@ graph_optimise_gsd(
 }
 \arguments{
 \item{pvals}{A \code{multigrain_pvals_gsd} object of repeated (or, per
-hypothesis, sequential) p-values, created with \code{\link[=transform_pvalues_gsd]{transform_pvalues_gsd()}}.}
+hypothesis, sequential) p-values, created with \code{\link[=transform_pvalues_gsd]{transform_pvalues_gsd()}};
+or a \code{multigrain_pvals_gsd_bank} from \code{\link[=spending_bank_gsd]{spending_bank_gsd()}}, in which
+case the spending function is optimised too (see \code{spending_shared}).}
 
 \item{graph_constraint}{A \code{multigrain_graph_constraint} object containing
 constraints on the graph's weights and transition matrix. Created with
@@ -40,6 +43,15 @@ significance level, or \code{NULL} (the default) to use the level of \code{pvals
 A supplied value must be greater than \code{0} and at most the level the
 repeated p-values were built up to: above that they are capped at 1, so
 no allocation beyond it could ever reject.}
+
+\item{spending_shared}{A logical. Only used when \code{pvals} is a
+\code{multigrain_pvals_gsd_bank} (see \code{\link[=spending_bank_gsd]{spending_bank_gsd()}}). \code{TRUE} (the
+default) optimises one choice of spending function shared by every
+hypothesis; \code{FALSE} optimises a separate choice per hypothesis. The
+choice is made in the global stage, which must therefore be on; the local
+stage and the pruning then run on the chosen spending functions. The
+result carries the choice in its \code{spending} element, and \code{power} is
+evaluated on the assembled p-values.}
 
 \item{start_graph}{Optional. Initial list of graphs suggested. Each graph is
 defined as a list containing starting weight vector \code{hyp_weight} and
@@ -94,6 +106,12 @@ passed on by the user are complemented with contextual defaults.
 optimisation was performed.
 \item \code{local_output}: Output from the NLOPT optimisation.
 \item \code{start_graph}: Initial starting values used in the optimisation.
+\item \code{spending} (only when \code{pvals} is a bank): a list with \code{index} and
+\code{label}, the chosen candidate for each hypothesis; \code{shared}; and
+\code{candidates}, the bank's labels.
+\item \code{pvals_chosen} (only when \code{pvals} is a bank): the \code{multigrain_pvals_gsd}
+object assembled from the chosen candidates, for use with
+\code{\link[=calc_power_pvals_gsd]{calc_power_pvals_gsd()}}.
 }
 }
 \description{
@@ -152,6 +170,7 @@ result <- graph_optimise_gsd(
 }
 \seealso{
 \code{\link[=graph_optimise]{graph_optimise()}} for the fixed-sample version,
-\code{\link[=transform_pvalues_gsd]{transform_pvalues_gsd()}} for the p-value object and
+\code{\link[=transform_pvalues_gsd]{transform_pvalues_gsd()}} for the p-value object,
+\code{\link[=spending_bank_gsd]{spending_bank_gsd()}} to optimise the spending function as well, and
 \code{\link[=trial_success_gsd]{trial_success_gsd()}} for the gain.
 }
