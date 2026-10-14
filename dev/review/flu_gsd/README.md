@@ -36,6 +36,11 @@ season-1 decision times. See `gain_expr()` in `00_setup.R`.
 | `03c_gamma_in_package.R` | Task 5, inside multigrain: `spending_bank_gsd()` plus `graph_optimise_gsd(bank, spending_shared = TRUE/FALSE)` choose gamma alongside the graph, both rules, S = 1, 1.5, 2. Needs this branch's package build. |
 | `04_summary.R` | Summary table (`results/summary_table.md`) and the figures. |
 | `05_participants.R` | Extra participants per arm the protocol design would need to match each optimised design. |
+| `08_claim_value_figure.R` | What an early claim has to be worth: value against S, with the standard design and break-even. |
+| `design_library.R` | Fixed designs from both rounds (graph, spending), scored under any stopping rule and value model; sourced by 09 to 11. |
+| `09_upgrade_valuation.R` | Two ways of valuing an endpoint that upgrades between seasons; re-optimises graph and gamma under the best-single-claim model. |
+| `10_finish_claim_map.R` | Best design over the plane of finish bonus F and claim bonus S. |
+| `11_claim_value_ve.R` | Break-even S across vaccine efficacy and the assurance prior. |
 | `06_stopping_rule_notes.md` | User-testing notes on specifying a stopping rule, with reprexes in `reprex/` (no trial inputs). |
 | `write_up.md` | Short write-up of the results. |
 
