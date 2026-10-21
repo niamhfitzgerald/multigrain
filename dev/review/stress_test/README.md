@@ -129,6 +129,7 @@ This branch changes no package code. It adds this folder and nothing else, so ev
 | `reprex/<ID>.R` | The short script of each entry | 83 |
 | [`stopping_rule/`](stopping_rule/) | Checks of the stopping rule, with their output (see "The stopping rule: what was checked") | 3 scripts |
 | [`rerun_5585caf/`](rerun_5585caf/) | The rerun on `gsd-build-spending`: every script on both builds compared, and the `R CMD check` and test suite results | 2 files |
+| [`fast_shortcut_and_family_opt/`](fast_shortcut_and_family_opt/) | A separate stress test of two newer branches, `fast-shortcut` and `family-opt` (21 October 2026), with its own README | 5 findings |
 
 ## IDs
 
@@ -207,6 +208,13 @@ In the stopping rule:
 - `stopping_rule_gsd("r1")` is one condition applied at every interim, but `stopping_rule_gsd(c("r1"))` counts as one condition per interim, so with 3 analyses it is refused ("It gives 1 condition"). The two look the same to a user, and the help describes both forms. The refusal message is clear, so it is listed here only.
 - A condition that returns a number (`r1 + r2`) or `NA` (`r1 / r2 > 0`) is accepted by `stopping_rule_gsd()` and refused only when the rule is used. The message then is clear and names the rejection set. The rule could be checked on creation on the empty set, as in SR1's fix.
 - The kernels treat `NA` in the truth table as `TRUE`, since `NA_LOGICAL` is a non-zero integer (`src/graph_shortcut_gsd.cpp:253` and `:398`). No user reaches this: `.gsd_stop_table()` refuses any value that is not `TRUE` or `FALSE`. It is of the same kind as MEM4.
+
+## Other branches
+
+Two newer branches start from `main` and are not in `gsd-build-spending`: `fast-shortcut` (`62bba6a`, a faster shortcut kernel) and `family-opt` (`851f58e`, graphs of families of hypotheses). Their stress test is in [`fast_shortcut_and_family_opt/`](fast_shortcut_and_family_opt/), with its own README.
+
+- `fast-shortcut`: no new errors. The new kernel gives the same rejections as the old one, and MEM1 is narrowed.
+- `family-opt`: five findings, kept there as they concern a branch this catalogue does not describe. FAM1 (severity 2) is a missing p-value inside a family; A4 (severity 1) and MEM1 (severity 2) reach the families code; FAM3 (severity 3) widens C20; FAM2 (severity 4) is about node labels.
 
 ## Not tested
 

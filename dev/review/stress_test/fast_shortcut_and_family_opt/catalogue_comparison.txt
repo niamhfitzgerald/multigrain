@@ -1,0 +1,102 @@
+The 83 scripts of the stress-test catalogue (stress-test-errors, dd963e0), run on 21 October 2026
+from the root of each build. main = 16f66d0, fast-shortcut = 62bba6a, family-opt = 851f58e.
+n/a (gsd)  = the script uses a group sequential function, which these three builds do not have.
+n/a (file) = the script reads a file that only the group sequential branches have.
+Trailing spaces are ignored.
+
+script                 main        fast-shortcut = main   family-opt = main
+A1                     runs        same                   same
+A2                     runs        differs                differs
+A3                     runs        same                   same
+A4                     runs        same                   same
+A5                     n/a (gsd)
+B1                     runs        same                   same
+B2                     runs        same                   same
+B3_power               runs        same                   same
+B3_simulators          runs        same                   same
+B4                     runs        same                   same
+B5                     runs        same                   same
+B6                     runs        same                   same
+B7                     runs        same                   same
+B9                     runs        same                   same
+C1                     n/a (gsd)
+C10                    runs        same                   same
+C11                    runs        same                   same
+C12                    runs        same                   same
+C13                    runs        differs                differs
+C14                    n/a (gsd)
+C15                    runs        same                   same
+C16                    runs        same                   same
+C17                    runs        differs                differs
+C18                    n/a (gsd)
+C19                    runs        same                   same
+C2                     n/a (gsd)
+C20                    n/a (gsd)
+C21                    n/a (gsd)
+C22                    runs        same                   same
+C23                    runs        same                   same
+C3                     n/a (gsd)
+C4                     n/a (gsd)
+C5                     n/a (gsd)
+C6                     n/a (gsd)
+C7                     runs        same                   same
+C8                     n/a (gsd)
+C9                     runs        same                   same
+DOC1                   runs        same                   same
+DOC10                  runs        same                   same
+DOC11                  runs        same                   same
+DOC12                  n/a (gsd)
+DOC13                  n/a (file)
+DOC14                  runs        same                   same
+DOC15                  runs        same                   same
+DOC16                  runs        same                   same
+DOC17a                 runs        same                   same
+DOC17b                 runs        same                   same
+DOC17c                 runs        same                   same
+DOC17d                 runs        same                   same
+DOC17f                 runs        same                   same
+DOC17g                 runs        same                   same
+DOC17h                 runs        same                   same
+DOC18                  runs        same                   same
+DOC19                  runs        same                   same
+DOC2                   runs        same                   same
+DOC4                   runs        same                   same
+DOC6                   n/a (file)
+DOC7                   runs        same                   same
+DOC8                   runs        same                   same
+DOC9                   runs        same                   same
+D_ggplot2_optional     runs        same                   same
+D_global_output        runs        same                   same
+D_graphics_undeclared  runs        same                   same
+D_local_weights        runs        same                   same
+D_plot_rounding        runs        same                   same
+D_power_nominal        n/a (file)
+ENV01                  runs        same                   same
+ENV02                  runs        differs                differs
+ENV03_power            runs        same                   same
+ENV03_spending         n/a (gsd)
+ENV04                  runs        same                   same
+ENV05                  runs        same                   same
+MEM1                   runs        differs                same
+MEM3                   runs        differs                differs
+MEM4                   runs        same                   same
+SR1                    n/a (gsd)
+SR2                    n/a (gsd)
+ST1                    n/a (gsd)
+UT2                    n/a (gsd)
+UT3                    n/a (gsd)
+UT4                    n/a (gsd)
+UT5                    n/a (file)
+UT6                    n/a (file)
+
+58 run, 20 need group sequential functions, 5 need group sequential files.
+
+Notes
+- A2, C13, C17, ENV02, MEM3: run-to-run values only (memory read outside a matrix, the stack
+  figure, timings, failed workers).
+- MEM1 on fast-shortcut: three of the four lines the script prints are now the new table kernel's,
+  which uses 64-bit offsets. The sequential kernel (src/graph_shortcut.cpp:372, 410-428) still uses
+  int, and it is the one used for more than 20 hypotheses.
+- MEM1 on family-opt: the script reads src/graph_shortcut.cpp only, so it prints 'same'. The new
+  families code uses the same 32-bit offsets (see README, MEM1 widened).
+- D_ggplot2_optional runs on all three: its 'could not find function "autoplot"' line is the finding.

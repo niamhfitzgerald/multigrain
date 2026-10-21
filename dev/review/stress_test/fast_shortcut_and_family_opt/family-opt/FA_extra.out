@@ -1,0 +1,82 @@
+constraint with 5 nodes and 3 families : The graph has 5 nodes but `families` has 3 families. ℹ With `families`, the graph has one node per family. 
+names of the optimised weights         : H1 H2 H3 
+family names in the specification       : primary secondary other 
+rownames of the transition matrix       : H1 H2 H3 
+names of local_power                    : 
+names of family_power                   : primary secondary other 
+labels drawn by plot()                  : 0.792 0.208 1 H1
+w: 0.997 H2
+w: 0.001 H3
+w: 0.002 
+summary():
+Optimisation summary
+
+Optimisation results:
+
+Hypothesis weights:
+   H1    H2    H3 
+0.997 0.001 0.002 
+
+Transition matrix:
+   H1     H2     H3
+H1  0 0.7919 0.2081
+H2  1 0.0000 0.0000
+H3  1 0.0000 0.0000
+
+Families of hypotheses:
+primary   (hommel): 1
+secondary (hommel): 2 3 4
+other     (hommel): 5
+
+Trial success function:
+2 * r1 + (r2 && r3 && r4) + 0.5 * r5
+
+Value of trial success measure:
+2.5168
+
+Power metrics:
+Power for each hypothesis:
+[1] 0.9037 0.6707 0.6843 0.5963 0.4503
+Expected number of rejections: 3.31
+Probability of at least one rejection: 0.9083
+Probability of rejecting all hypotheses: 0.3597
+Probability of rejecting all hypotheses in each family:
+  primary secondary     other 
+   0.9037    0.4843    0.4503 
+
+Graph constraints:
+Constraints on hypothesis weights:
+H1 H2 H3 
+NA NA NA 
+
+Constraints on transition matrix:
+   H1 H2 H3
+H1  0 NA NA
+H2 NA  0 NA
+H3 NA NA  0
+
+Solution source:
+Local optimisation (nloptr)
+<multigrain_graph_optimal>
+Optimal graph found (given user-defined constraints on graph and computational resources):
+
+Hypothesis weights:
+   H1    H2    H3 
+0.997 0.001 0.002 
+
+Transition matrix:
+   H1     H2     H3
+H1  0 0.7919 0.2081
+H2  1 0.0000 0.0000
+H3  1 0.0000 0.0000
+
+Families of hypotheses (one per node):
+primary   (hommel): 1
+secondary (hommel): 2 3 4
+other     (hommel): 5
+
+Trial success function:
+2 * r1 + (r2 && r3 && r4) + 0.5 * r5
+
+Value of trial success measure:
+2.5168

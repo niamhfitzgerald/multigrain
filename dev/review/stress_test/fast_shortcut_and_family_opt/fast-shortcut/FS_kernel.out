@@ -1,0 +1,19 @@
+FS1   PASS table = sequential (serial and 2 threads) on 156 random graphs, m 2-14, 1500 trials each; mismatches: 0 
+FS2   PASS p-values rounded to 4 decimals (300 cases x 400 trials): cases with a mismatch 0, trials 0
+FS3   PASS p exactly at a table critical value after other rejections: 0 of 8528 probes disagree
+FS4   PASS table kernel = graphicalMCP::graph_test_shortcut() on 60 graphs x 50 trials; mismatching graphs: 0
+FS5   PASS degenerate graphs, zero weights, epsilon edges, p = 0, 1, NA and exact ties: kernels agree
+FS6   PASS m = 12: sequential kernel for 100 trials, table for 20,000; the first 100 rows agree: TRUE
+FS7a  PASS m = 20: table of 1048576 x 20 (160 MB) built in 0.9 s
+FS7b  PASS m = 21 with the table kernel forced: The table kernel supports at most 20 hypotheses (m = 21).
+      auto kernel for m = 20: sequential with 1e5 trials, table with 6e5 trials
+      "Table"                                  -> Option `multigrain.shortcut_kernel` must be one of "auto", "sequential" or "table".
+      c("auto", "table")                       -> Option `multigrain.shortcut_kernel` must be one of "auto", "sequential" or "table".
+      NA_character_                            -> Option `multigrain.shortcut_kernel` must be one of "auto", "sequential" or "table".
+      2.5                                      -> Option `multigrain.shortcut_table_max_m` must be a whole number between 0 and 20.
+      -1                                       -> Option `multigrain.shortcut_table_max_m` must be a whole number between 0 and 20.
+      "10"                                     -> Option `multigrain.shortcut_table_max_m` must be a whole number between 0 and 20.
+      21                                       -> Option `multigrain.shortcut_table_max_m` must be a whole number between 0 and 20.
+FS8   PASS invalid option values are refused
+
+9 of 9 checks passed

@@ -1,0 +1,16 @@
+m3_t1      identical=TRUE
+m3_t2      identical=TRUE
+m3_power   identical=TRUE
+m4_t1      identical=TRUE
+m4_t2      identical=TRUE
+m4_power   identical=TRUE
+m6_t1      identical=TRUE
+m6_t2      identical=TRUE
+m6_power   identical=TRUE
+m8_t1      identical=TRUE
+m8_t2      identical=TRUE
+m8_power   identical=TRUE
+calc_power_pvals(), 1e5 trials, median of 5 (s):
+  m = 4   main 0.009   fast-shortcut 0.008   speed-up 1.1x
+  m = 8   main 0.021   fast-shortcut 0.014   speed-up 1.5x
+  m = 12  main 0.041   fast-shortcut 0.018   speed-up 2.3x
