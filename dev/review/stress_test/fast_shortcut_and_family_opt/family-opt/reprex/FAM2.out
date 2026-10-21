@@ -1,0 +1,4 @@
+names of the weights      : H1 H2 H3 
+names of family_power     : primary secondary other 
+node H2 is the family     : secondary = hypotheses 2 3 4 
+EXPECTED: nodes named after the families (primary, secondary, other) in the result, print() and plot()

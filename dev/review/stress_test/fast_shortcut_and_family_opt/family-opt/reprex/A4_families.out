@@ -1,0 +1,2 @@
+P(reject a true null) at one-sided alpha 0.025: 0.0497 
+EXPECTED: an error: row 1 sums to 2

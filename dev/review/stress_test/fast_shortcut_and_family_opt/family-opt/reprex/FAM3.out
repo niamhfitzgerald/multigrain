@@ -1,0 +1,4 @@
+entries named family_power: 2 
+out$family_power returns  : 0.861 0.521 
+the user's measure        : 2.2585 
+EXPECTED: an error for a name that clashes with a built-in field

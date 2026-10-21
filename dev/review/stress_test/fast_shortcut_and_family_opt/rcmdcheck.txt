@@ -1,0 +1,25 @@
+R CMD check --no-manual --ignore-vignettes (the test suite runs inside it), 21 October 2026
+R 4.3.3 on Linux (x86_64, g++ 13.3.0, 2 cores)
+
+-- main (16f66d0)
+   * checking for hidden files and directories ... NOTE
+   * checking for GNU extensions in Makefiles ... NOTE
+   * checking examples ... OK
+   Status: 1 ERROR, 2 NOTEs
+   tests: [ FAIL 18 | WARN 30 | SKIP 3 | PASS 1127 ]
+-- fast-shortcut (62bba6a)
+   * checking for hidden files and directories ... NOTE
+   * checking for GNU extensions in Makefiles ... NOTE
+   * checking examples ... OK
+   Status: 1 ERROR, 2 NOTEs
+   tests: [ FAIL 18 | WARN 30 | SKIP 3 | PASS 1631 ]
+-- family-opt (851f58e)
+   * checking for hidden files and directories ... NOTE
+   * checking for GNU extensions in Makefiles ... NOTE
+   * checking examples ... OK
+   Status: 1 ERROR, 2 NOTEs
+   tests: [ FAIL 18 | WARN 30 | SKIP 3 | PASS 1298 ]
+
+On every build the one ERROR is the
+tests, and the 18 failures are the same plot snapshot tests (test-plot_graph_constraint.R,
+test-plot_graph_optimal.R), which fail here with older plotting packages.
