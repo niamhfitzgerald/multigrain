@@ -1,0 +1,39 @@
+== Creating a rule
+r1 & r2 (single &)                         ERROR: Unsupported operator or function `&` in a stopping condition. ℹ Only logical (`&&`, `||`, and `!`), comparison (`==`, `!=`, `<`, `<=`, `>`, and `>=`) and arithmetic (`+`, `-`, `*`, and `/`) operators and parentheses are allowed. • There are no discount tables in a stopping rule.
+r1 | r2 (single |)                         ERROR: Unsupported operator or function `|` in a stopping condition. ℹ Only logical (`&&`, `||`, and `!`), comparison (`==`, `!=`, `<`, `<=`, `>`, and `>=`) and arithmetic (`+`, `-`, `*`, and `/`) operators and parentheses are allowed. • There are no discount tables in a stopping rule.
+"R1 AND R2" (upper case)                   ERROR: Symbol `R1` in a stopping condition is not a rejection indicator (`r1`, `r2`, ...). ℹ Use `!!` to inject values from the calling environment, e.g. `stopping_rule_gsd(r1 + r2 >= !!R1)`.
+"r1 and not r2"                            created: r1 && !r2
+"r1 or r2 and r3"                          created: r1 || r2 && r3
+r0                                         ERROR: Symbol `r0` in a stopping condition is not a rejection indicator (`r1`, `r2`, ...). ℹ Use `!!` to inject values from the calling environment, e.g. `stopping_rule_gsd(r1 + r2 >= !!r0)`.
+r01                                        ERROR: Symbol `r01` in a stopping condition is not a rejection indicator (`r1`, `r2`, ...). ℹ Use `!!` to inject values from the calling environment, e.g. `stopping_rule_gsd(r1 + r2 >= !!r01)`.
+TRUE                                       ERROR: Stopping condition `TRUE` must refer to at least one rejection indicator (`r1`, `r2`, ...). ℹ A condition that refers to none cannot depend on the trial.
+r1 || TRUE (always stops)                  created: r1 || TRUE
+!r1 (stops when H1 is NOT rejected)        created: !r1
+r1 + r2 (not a logical value)              created: r1 + r2
+r1 / r2 > 0 (NA when nothing rejected)     created: r1/r2 > 0
+isTRUE(r1)                                 ERROR: Unsupported operator or function `isTRUE` in a stopping condition. ℹ Only logical (`&&`, `||`, and `!`), comparison (`==`, `!=`, `<`, `<=`, `>`, and `>=`) and arithmetic (`+`, `-`, `*`, and `/`) operators and parentheses are allowed. • There are no discount tables in a stopping rule.
+t1 (decision time)                         ERROR: Symbol `t1` cannot be used in a stopping condition: decision times are not available to a stopping rule. ℹ A condition is evaluated at each interim analysis on the rejection indicators `r1`, `r2`, ...
+NULL                                       ERROR: `condition` must be an expression, a string, a call to `list()` or a character vector, not NULL.
+NA_character_                              ERROR: A stopping condition must be a string, not NA.
+list()                                     ERROR: `condition` must hold at least one condition, not an empty `list()`.
+cond (a variable, no !!)                   ERROR: Symbol `cond` in a stopping condition is not a rejection indicator (`r1`, `r2`, ...). ℹ Use `!!` to inject values from the calling environment, e.g. `stopping_rule_gsd(r1 + r2 >= !!cond)`.
+!!cond                                     created: r1 && r2
+r1 + r2 + r3 >= !!k                        created: r1 + r2 + r3 >= 2
+
+== Using a rule (m = 3, K = 3)
+r4 (beyond m)                              ERROR: `stopping_rule` refers to hypothesis `r4` but `pvals` holds m = 3 hypotheses.
+list(r1) (one condition, K - 1 = 2)        ERROR: `stopping_rule` must give one condition per interim analysis. ✖ It gives 1 condition. ℹ `pvals` holds K = 3 analyses. The rule needs 2 conditions, or a single condition (not in a list) applied at every interim analysis.
+c("r1") (one string)                       ERROR: `stopping_rule` must give one condition per interim analysis. ✖ It gives 1 condition. ℹ `pvals` holds K = 3 analyses. The rule needs 2 conditions, or a single condition (not in a list) applied at every interim analysis.
+list("r1") (one string in a list)          ERROR: `stopping_rule` must give one condition per interim analysis. ✖ It gives 1 condition. ℹ `pvals` holds K = 3 analyses. The rule needs 2 conditions, or a single condition (not in a list) applied at every interim analysis.
+list(r1, r2, r3) (K conditions)            WARNING: The final analysis always ends the trial; the last condition of `stopping_rule`, `r3`, is ignored. ℹ `pvals` holds K = 3 analyses. A rule gives one condition per interim analysis.
+list(r1, r2, r3) (K conditions)            ran: stop_distribution = 0.005 0.263 0.732
+list(r1, r2, r3, r1) (K + 1)               ERROR: `stopping_rule` must give one condition per interim analysis. ✖ It gives 4 conditions. ℹ `pvals` holds K = 3 analyses. The rule needs 2 conditions, or a single condition (not in a list) applied at every interim analysis.
+r1 + r2 (numeric)                          ERROR: Stopping condition `r1 + r2` must return a single `TRUE` or `FALSE`. ✖ At interim 1 with rejection set none it returned the number 0.
+r1 / r2 > 0 (NA)                           ERROR: Stopping condition `r1/r2 > 0` must return a single `TRUE` or `FALSE`. ✖ At interim 1 with rejection set none it returned NA.
+!r1 (true on the empty set)                ran: stop_distribution = 0.995 0 0.005
+r1 || TRUE                                 ran: stop_distribution = 1 0 0
+a plain list, not a rule                   ERROR: `stopping_rule` must be a multigrain_stopping_rule_gsd object (see stopping_rule_gsd()) or `NULL`, not a list.
+a string, not a rule                       ERROR: `stopping_rule` must be a multigrain_stopping_rule_gsd object (see stopping_rule_gsd()) or `NULL`, not the string "r1".
+
+== Using a rule with graph_optimise() (fixed sample)
+graph_optimise(..., stopping_rule = )      ERROR: `...` must be empty. ✖ Problematic argument: • stopping_rule = stopping_rule_gsd(r1)

@@ -1,0 +1,28 @@
+R CMD check and the test suite, 21 October 2026
+R 4.3.3 on Linux (x86_64, g++ 13.3.0, 2 cores); ggplot2 3.4.4, ggraph 2.1.0, igraph 1.6.0, vdiffr 1.0.7, svglite 2.1.3
+
+== R CMD check --no-manual --ignore-vignettes (the test suite runs inside it)
+-- 5585caf
+check.log:  [ FAIL 18 | WARN 30 | SKIP 6 | PASS 2970 ]
+check.log:* checking examples ... OK
+check.log:* checking for GNU extensions in Makefiles ... NOTE
+check.log:* checking for hidden files and directories ... NOTE
+check.log:Status: 1 ERROR, 2 NOTEs
+multigrain.Rcheck/tests/testthat.Rout.fail:[ FAIL 18 | WARN 30 | SKIP 6 | PASS 2970 ]
+-- 8af8adb
+check.log:  [ FAIL 18 | WARN 30 | SKIP 3 | PASS 1861 ]
+check.log:* checking examples ... SKIPPED
+check.log:* checking for GNU extensions in Makefiles ... NOTE
+check.log:* checking for hidden files and directories ... NOTE
+check.log:* checking for unstated dependencies in examples ... ERROR
+check.log:Status: 2 ERRORs, 2 NOTEs
+multigrain.Rcheck/tests/testthat.Rout.fail:[ FAIL 18 | WARN 30 | SKIP 3 | PASS 1861 ]
+
+Test suite: 5585caf 2,970 expectations pass, 18 fail, 6 skipped; 8af8adb 1,861 pass, 18 fail,
+3 skipped. The 18 failures are the same plot snapshot tests on both builds
+(test-plot_graph_constraint.R, test-plot_graph_optimal.R); they fail here with the older
+plotting packages listed above.
+
+5585caf: the one ERROR is the tests, and it comes from those 18 plot snapshots.
+The examples parse and run (B8 is fixed). 8af8adb: the examples still do not parse (B8),
+so R CMD check runs none of them.
