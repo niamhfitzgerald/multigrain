@@ -1,0 +1,21 @@
+SR01  PASS no-rule kernel matches an independent graphical procedure (m 2-5, K 2-4, 400 trials each)
+SR02a PASS stopped decision times = unstopped times cut at the first interim where the rule holds (36 designs x 4 rules)
+SR02b PASS stop_look matches the reference, including the stop when every hypothesis is rejected
+SR02c PASS serial and parallel kernels agree exactly with a rule
+SR03  PASS a list of conditions applies condition k at interim k
+SR04a PASS FWER with and without rules, global null: worst 0.02390 (limit 0.025 + 3 SE = 0.02605)
+SR04b PASS FWER with and without rules, H1 false, H2-H4 true: worst 0.02383 (limit 0.025 + 3 SE = 0.02605)
+SR05a PASS no local, disjunctive or conjunctive power rises under any of four rules
+SR05b PASS stop_distribution sums to 1, mean_stop_look is its mean, power at interim 1 is untouched
+SR05c PASS without a rule, mass before K is exactly the trials that rejected everything by then
+      no rule: stop_distribution = 6e-04 0.1448 0.8546 
+SR06  PASS K = 1: a rule is accepted and changes nothing
+SR07a PASS reported gain 1.766200 equals calc_power_pvals_gsd() on the returned graph with the rule 1.766200
+SR07b PASS graph optimised with the rule is at least as good under the rule as the no-rule optimum (1.76620 vs 1.61910)
+SR07c PASS the result records the rule
+SR07d PASS print() and summary() show the rule and the stopping distribution
+      m = 12, K = 4: truth table of 4096 x 3 built in 0.1 s
+      m = 16, K = 4: truth table of 65536 x 3 built in 2.2 s
+SR08  PASS m = 17 is refused with a message naming the 16-hypothesis limit
+
+16 of 16 checks passed
