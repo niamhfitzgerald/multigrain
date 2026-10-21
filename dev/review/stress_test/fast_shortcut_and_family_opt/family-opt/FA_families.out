@@ -1,0 +1,88 @@
+FA1   PASS kernel = independent version on 120 random cases x 200 trials (with ties); mismatching cases: 0
+      1 | 2-4 | 5  rho 0.0  hommel   FWER 0.0247
+      1 | 2-4 | 5  rho 0.0  hochberg FWER 0.0247
+      1 | 2-4 | 5  rho 0.0  holm     FWER 0.0247
+      1 | 2-4 | 5  rho 0.5  hommel   FWER 0.0237
+      1 | 2-4 | 5  rho 0.5  hochberg FWER 0.0236
+      1 | 2-4 | 5  rho 0.5  holm     FWER 0.0235
+      1 | 2-4 | 5  rho 0.9  hommel   FWER 0.0208
+      1 | 2-4 | 5  rho 0.9  hochberg FWER 0.0205
+      1 | 2-4 | 5  rho 0.9  holm     FWER 0.0198
+      1-2 | 3-6    rho 0.0  hommel   FWER 0.0244
+      1-2 | 3-6    rho 0.0  hochberg FWER 0.0244
+      1-2 | 3-6    rho 0.0  holm     FWER 0.0244
+      1-2 | 3-6    rho 0.5  hommel   FWER 0.0235
+      1-2 | 3-6    rho 0.5  hochberg FWER 0.0232
+      1-2 | 3-6    rho 0.5  holm     FWER 0.0229
+      1-2 | 3-6    rho 0.9  hommel   FWER 0.0185
+      1-2 | 3-6    rho 0.9  hochberg FWER 0.0179
+      1-2 | 3-6    rho 0.9  holm     FWER 0.0161
+      1-6          rho 0.0  hommel   FWER 0.0248
+      1-6          rho 0.0  hochberg FWER 0.0248
+      1-6          rho 0.0  holm     FWER 0.0248
+      1-6          rho 0.5  hommel   FWER 0.0211
+      1-6          rho 0.5  hochberg FWER 0.0204
+      1-6          rho 0.5  holm     FWER 0.0203
+      1-6          rho 0.9  hommel   FWER 0.0137
+      1-6          rho 0.9  hochberg FWER 0.0120
+      1-6          rho 0.9  holm     FWER 0.0105
+FA2   PASS global null, 27 designs: FWER within 3 SE of 0.025 or below (largest excess 0.0 SE)
+FA3   PASS 24 random partial-null designs, 1e5 trials each: largest excess over 0.025 is 0.0 SE
+      one family {1, 2}, rho = -0.9: FWER hommel 0.0251  hochberg 0.0251  holm 0.0251
+FA4   PASS Holm keeps the level under negative dependence (Hommel and Hochberg are not expected to)
+      NA inside a family: accepted; local power 0.667 0.333 1 0.667 
+      adjusted p-values of row 1: 0.002 1.000 0.004 0.500  | p.adjust on family 1: 0.001    NA 
+FA5   FAIL a missing p-value in a family is refused with a message (calc_power_pvals() accepts NA without families: entry B3_power)
+      duplicate hypothesis   -> Each hypothesis must belong to exactly one family. Hypothesis 1 appears in more than one family.
+      missing hypothesis 2   -> `members` must contain every hypothesis from 1 to 3. Hypothesis 2 is not in any family.
+      index 0                -> The hypotheses in `members` must be positive whole numbers (columns of the p-value matrix).
+      NA index               -> The hypotheses in `members` must be positive whole numbers (columns of the p-value matrix).
+      index 1.5              -> `members[[1]]` must be integer-like, not the number 1.5.
+      empty family           -> Every family must contain at least one hypothesis. Family 2 is empty.
+      character indices      -> `members[[1]]` must be integer-like, not the string "1".
+      not a list             -> `members` must be a non-empty list of integer vectors, not an integer vector.
+      duplicate names        -> Family names in `members` must be unique.
+      test 'Holm'            -> `test` must be one of "hommel", "hochberg", or "holm", not "Holm". ℹ Did you mean "holm"?
+      two tests, 3 families  -> `test` must have length 1 or 3 (one per family), not 2.
+      no families            -> `members` must be a non-empty list of integer vectors, not an empty list.
+FA6   PASS invalid specifications refused; accepted: none
+      graph with 5 nodes (one per hypothesis)    -> The graph has 5 nodes but `families` has 3 families. ℹ With `families`, the graph has one node per family.
+      families for 6 hypotheses, 5 p-values      -> `pvals` has 5 columns but `families` covers 6 hypotheses.
+      families as a plain list                   -> `families` must be a multigrain family specification object or `NULL`, not a list.
+      sum_to_one_constraint = FALSE, row sum 2   -> ACCEPTED; disjunctive power 0.678
+Warning: Missing indices in the sequence. Expected every index from 1 to 3, but missing
+1.
+      A4 with families: P(reject a true null) with row 1 summing to 2: 0.0497
+FA7   FAIL entry A4 does not carry over to the families path (a row sum of 2 is refused, or the level holds)
+      fields: local_power, exp_rejections, disj_power, conj_power, family_power, family_power 
+      entries named family_power: 2 | x$family_power: 0.386 0.156 0.370 | the user's measure on its own: 1.742 
+FA8   FAIL a custom_power entry named family_power is returned under that name (cf. C20)
+      optimised weights: 0.994 0.001 0.005 | gain 2.5144 | recomputed 2.5144 
+      plot(): ok 
+FA9   PASS graph_optimise() with families: reported gain equals calc_power_pvals(); print() and plot() work
+<multigrain_graph_optimal>
+Optimal graph found (given user-defined constraints on graph and computational resources):
+
+Hypothesis weights:
+    H1     H2     H3 
+0.9940 0.0011 0.0049 
+
+Transition matrix:
+   H1     H2     H3
+H1  0 0.7528 0.2472
+H2  1 0.0000 0.0000
+H3  1 0.0000 0.0000
+
+Families of hypotheses (one per node):
+F1 (hommel): 1
+F2 (hommel): 2 3 4
+F3 (hommel): 5
+
+Trial success function:
+2 * r1 + (r2 && r3 && r4) + 0.5 * r5
+
+Value of trial success measure:
+2.5144 
+FA10  PASS families of 30 and 10 hypotheses, 20,000 trials: 0.13 s
+
+7 of 10 checks passed

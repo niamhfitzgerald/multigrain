@@ -1,0 +1,13 @@
+hommel   H2 missing               adjusted 0.002 1.000            rejected 1
+hommel   H1 missing               adjusted 0.001 0.001            rejected 1 2
+holm     H2 missing               adjusted 0.002 1.000            rejected 1
+holm     H1 missing               adjusted 1 1                    rejected 
+hommel   H1 missing (of 3)        adjusted 0.0015 0.0020 0.0020   rejected 1 2 3
+hommel   H3 missing (of 3)        adjusted 0.003 0.004 0.004      rejected 1 2 3
+hochberg H1 missing (of 3)        adjusted 0.002 0.002 0.002      rejected 1 2 3
+hochberg H3 missing (of 3)        adjusted 0.003 0.004 1.000      rejected 1 2
+holm     H1 missing (of 3)        adjusted 1 1 1                  rejected 
+holm     H3 missing (of 3)        adjusted 0.003 0.004 1.000      rejected 1 2
+p.adjust(c(NA, 0.001, 0.002), "hommel"):    NA 0.002 0.002 
+graph_optimise() with 100 missing p-values of H1: returns weights 0.723 0.277 and power of H1 0.873 (no message)
+EXPECTED: an error naming the missing p-value; a hypothesis with no p-value is never rejected
