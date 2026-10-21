@@ -1,0 +1,102 @@
+Every script of the second version of this folder, run on 21 October 2026 from the root of each build.
+8af8adb: gsd-build. 5585caf: gsd-build-spending. 'recorded' is the output shown in the
+second version of this folder (captured on 8af8adb on 14 October 2026).
+Trailing spaces are ignored in the comparisons.
+
+script                 exit_old exit_new 8af8adb = recorded output    5585caf = 8af8adb
+A1                     0        0        same                         same 
+A2                     0        0        differs                      differs 
+A3                     0        0        same                         same 
+A4                     0        0        same                         same 
+A5                     0        0        same                         same 
+B1                     0        0        same                         same 
+B2                     0        0        same                         same 
+B3_power               0        0        same                         same 
+B3_simulators          0        0        same                         same 
+B4                     0        0        same                         same 
+B5                     0        0        same                         same 
+B6                     0        0        same                         same 
+B7                     0        0        same                         same 
+B8                     0        0        same                         differs (entry removed: fixed)
+B9                     0        0        same                         same 
+C1                     0        0        same                         same 
+C10                    0        0        same                         same 
+C11                    0        0        same                         same 
+C12                    0        0        same                         same 
+C13                    0        0        differs                      differs 
+C14                    0        0        same                         same 
+C15                    0        0        same                         same 
+C16                    0        0        same                         same 
+C17                    0        0        differs                      differs 
+C18                    0        0        same                         same 
+C19                    0        0        same                         same 
+C2                     0        0        same                         same 
+C20                    0        0        same                         same 
+C21                    0        0        same                         same 
+C22                    0        0        same                         same 
+C23                    0        0        same                         same 
+C3                     0        0        same                         same 
+C4                     0        0        same                         same 
+C5                     0        0        same                         same 
+C6                     0        0        same                         same 
+C7                     0        0        same                         same 
+C8                     0        0        same                         same 
+C9                     0        0        same                         same 
+DOC1                   0        0        same                         same 
+DOC10                  0        0        same                         same 
+DOC11                  0        0        same                         same 
+DOC12                  0        0        same                         same 
+DOC13                  0        0        same                         differs 
+DOC14                  0        0        same                         same 
+DOC15                  0        0        same                         same 
+DOC16                  0        0        same                         differs 
+DOC17a                 0        0        same                         same 
+DOC17b                 0        0        same                         same 
+DOC17c                 0        0        same                         same 
+DOC17d                 0        0        same                         same 
+DOC17f                 0        0        same                         same 
+DOC17g                 0        0        same                         same 
+DOC17h                 0        0        same                         same 
+DOC18                  0        0        same                         same 
+DOC19                  0        0        same                         same 
+DOC2                   0        0        same                         same 
+DOC4                   0        0        same                         same 
+DOC6                   0        0        same                         same 
+DOC7                   0        0        same                         differs 
+DOC8                   0        0        same                         same 
+DOC9                   0        0        same                         differs 
+D_ggplot2_optional     0        0        same                         same 
+D_global_output        0        0        same                         same 
+D_graphics_undeclared  0        0        same                         same 
+D_local_weights        0        0        same                         same 
+D_plot_rounding        0        0        same                         same 
+D_power_nominal        0        0        same                         same 
+ENV01                  0        0        same                         same 
+ENV02                  0        0        differs                      differs 
+ENV03_power            0        0        same                         same 
+ENV03_spending         0        0        same                         same 
+ENV04                  0        0        same                         same 
+ENV05                  0        0        same                         same 
+MEM1                   0        0        same                         same 
+MEM3                   0        0        differs                      differs 
+MEM4                   0        0        differs                      differs 
+REG3                   0        0        same                         differs (entry removed: fixed)
+SR1                    0        0        same                         same 
+SR2                    0        0        same                         same 
+ST1                    0        0        same                         same 
+UT1                    0        0        same                         differs (entry removed: fixed)
+UT2                    0        0        same                         same 
+UT3                    0        0        same                         same 
+UT4                    0        0        same                         same 
+UT5                    0        0        same                         same 
+UT6                    0        0        same                         differs 
+
+Notes
+- A2, C13, C17, ENV02, MEM3, MEM4: run-to-run values only (memory read outside a
+  matrix, the stack figure, timings, failed workers). See "Running the scripts".
+- DOC13, UT6: a line number in the output only.
+- DOC7, DOC16, DOC9: the entry is narrowed or reworded; see the entry.
+- B8, REG3, UT1: fixed on 5585caf; their entries and scripts are removed.
+- D_ggplot2_optional: the script now finds the help page by its alias, since the
+  file was renamed on 5585caf; it gives the same output on both builds.
+- Every script ran with exit status 0 and ended with its EXPECTED: line on both builds.
