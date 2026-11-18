@@ -1,6 +1,6 @@
 # Stress test of `fast-shortcut` and `family-opt`
 
-Niamh Fitzgerald, 21 October 2026. Nothing here has been pushed.
+Niamh Fitzgerald, 21 October 2026. Pushed to the fork on 21 October. Line references here are at the commits tested (`62bba6a`, `851f58e`, `16f66d0`). The fast shortcut was changed again before it was merged; the merged kernel was rechecked on `gsd-build-spending` at `31ada01` on 18 November (`../rerun_31ada01/shortcut/` and the catalogue README).
 
 | Branch | Commit | What it adds |
 |---|---|---|

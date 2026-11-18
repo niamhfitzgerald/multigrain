@@ -50,7 +50,7 @@ cat("objective at free weights (1, 1e-7), which make the third weight -1e-7:",
 cat("EXPECTED: weights 0 0 1 with gain -1.113, and an infeasible point scored below every graph\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 gain of the default start graph, weights 1/3 1/3 1/3: -1.208
@@ -95,7 +95,7 @@ With this change the script returns weights 0 0 1 with gain -1.113, and the infe
 
 **What the error is.** `calc_power_pvals()` accepts a compiled gain that refers to a hypothesis the p-value matrix does not have, for example `r1 + r2 + r3 + r4` with 3 columns. The value returned is whatever lies in memory behind the rejection matrix: about 321,000,000 in one run for a gain that cannot exceed 4, and another number in the next run. With `r1 + r99` on 200,000 rows the R session ends with a segmentation fault. A gain kept from a larger design and reused on a smaller one is enough to get there. `calc_power_pvals_gsd()` has a check, but a second `custom_power` entry with the same name as the first escapes it: with gains built by `trial_success()`, `list(a = <gain for 2>, a = <gain for 4>)` on 2 hypotheses returned -222,639,715 in one run (a gain built by `trial_success_gsd()` is stopped there by a width test in its own compiled code).
 
-**What causes it.** `calc_power_pvals()` never compares the gain's `m` with `ncol(pvals)` (`R/calc_power.R:145-152`), and `.eval_custom_power()` hands the rejection matrix to the compiled function (`R/calc_power.R:248`), which indexes `x(i, j)` without a column check (`R/trial_success.R:298-304`). `graph_optimise()` does compare (`R/optimisation.R:147`). In `calc_power_pvals_gsd()` the loop at `R/calc_power_gsd.R:208-217` looks each entry up by name, and `custom_power[[nm]]` returns the first entry of that name both times.
+**What causes it.** `calc_power_pvals()` never compares the gain's `m` with `ncol(pvals)` (`R/calc_power.R:154-161`), and `.eval_custom_power()` hands the rejection matrix to the compiled function (`R/calc_power.R:257`), which indexes `x(i, j)` without a column check (`R/trial_success.R:298-304`). `graph_optimise()` does compare (`R/optimisation.R:147`). In `calc_power_pvals_gsd()` the loop at `R/calc_power_gsd.R:208-217` looks each entry up by name, and `custom_power[[nm]]` returns the first entry of that name both times.
 
 **Code showing the problem** ([`reprex/A2.R`](reprex/A2.R)):
 
@@ -128,10 +128,10 @@ cat("child process with r1 + r99 on 2 hypotheses: exit status", status, "(139 = 
 cat("EXPECTED: an error from calc_power_pvals(), since the gain refers to a hypothesis the p-values do not have\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
-value of r1 + r2 + r3 + r4 on 3 hypotheses: 329,908,030
+value of r1 + r2 + r3 + r4 on 3 hypotheses: 315,138,377
 possible (between 0 and 4): FALSE
 child process with r1 + r99 on 2 hypotheses: exit status 139 (139 = segmentation fault)
 EXPECTED: an error from calc_power_pvals(), since the gain refers to a hypothesis the p-values do not have
@@ -200,7 +200,7 @@ cat("child process with d(t0): exit status", status, "(139 = segmentation fault)
 cat("EXPECTED: an error from both constructors, since hypotheses are numbered from 1\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 hypotheses the object says it covers: 2
@@ -239,7 +239,7 @@ With this change both constructors stop with that first line; the second line of
 
 **What the error is.** With `sum_to_one_constraint = FALSE`, a transition matrix with a row that sums to more than 1 is reported valid and is evaluated. In the script H1 passes all its alpha to H2 and all of it again to H3 (row sum 2): `is_graph_valid()` returns `TRUE`, and `calc_power_pvals()` reports a probability of rejecting a true null hypothesis of 0.0497 at a one-sided level of 0.025. `calc_power_pvals_gsd()` evaluates the same graph (0.0492 in a run with analyses at information fractions 0.5 and 1 and `gsDesign::sfLDOF`). The flag is needed for any graph with a terminal node, and the help example of `calc_power_pvals()` sets it, so it is switched on routinely. A slip in a hand-written matrix then goes unnoticed, and the power reported belongs to a procedure that does not control the familywise error rate.
 
-**What causes it.** `is_graph_valid()` looks at the row sums only inside `if (sum_to_one_constraint)` (`R/utils.R:189-198`). With the flag off no condition on the row sums is left. The entries are checked one by one to lie in [0, 1] (`R/utils.R:172`), which a row holding two 1s satisfies. The kernels state "row sums must be <= 1" in a comment (`src/graph_shortcut.cpp:54-55`) and do not check it.
+**What causes it.** `is_graph_valid()` looks at the row sums only inside `if (sum_to_one_constraint)` (`R/utils.R:189-198`). With the flag off no condition on the row sums is left. The entries are checked one by one to lie in [0, 1] (`R/utils.R:172`), which a row holding two 1s satisfies. The kernels state "row sums must be <= 1" in a comment (`src/graph_shortcut.cpp:576-577`, and `:648-649` for the parallel kernel) and do not check it.
 
 **Code showing the problem** ([`reprex/A4.R`](reprex/A4.R)):
 
@@ -265,7 +265,7 @@ cat("P(reject a true null) at one-sided alpha 0.025:", round(out$any_null, 4), "
 cat("EXPECTED: FALSE with a warning, then an error from calc_power_pvals(): row 1 sums to 2\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 row sums of the transition matrix: 2 0 0
@@ -335,7 +335,7 @@ cat("EXPECTED: an error, since the function spends 0.030 of a level of 0.025;",
     "never a type I error above 0.025\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 spend of 0.025 at t = 1, the only point the package checks: 0.025
@@ -414,7 +414,7 @@ cat("EXPECTED: no final p-value rejected at this level, since nothing is left to
     "type I error 0.00975\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 level: 0.00975   cumulative spend at the two analyses: 0.00975 0.00975
@@ -495,7 +495,7 @@ if (sprintf("%.1f", 0.5) == "0,5") {
 cat("EXPECTED: 1.5 from every gain, whatever the session prints\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 built under options(OutDec = ",")

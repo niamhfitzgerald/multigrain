@@ -1,0 +1,4 @@
+seeds whose global solution was returned: 16 of 20
+G[1, 4] returned with a global solution: 0.001 
+G[1, 4] returned with a local solution:  1e-04 
+EXPECTED: G[1, 4] = 1e-04 in every run

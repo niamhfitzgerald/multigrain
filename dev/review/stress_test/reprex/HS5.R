@@ -1,0 +1,15 @@
+# HS5: print() gives the wrong step when the bounds are not multiples of the step
+# Run: Rscript HS5.R   (about 20 s; needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain.verbosity = "silent")
+set.seed(1)
+raw  <- simulate_pvalues_gsd(power_nominal = c(0.9, 0.8), corr_matrix = diag(2), info_frac = c(0.5, 1), nsim = 2000)
+spec <- transform_pvalues_gsd(raw, spending = list(gsDesign::sfLDOF, sf_hsd_opt(bounds = c(-3.9, 0.1), step = 0.5)), grid_size = 64L)
+gain <- trial_success_gsd(r1 * d(t1) + r2 * d(t2), d = c(1, 0.75))
+set.seed(3)
+res <- graph_optimise_gsd(pvals = spec, graph_constraint = graph_constraint_free(2), trial_success = gain, num_threads = 2)
+cat("lattice:", sort(unique(res$spending_profile$value)), "\n")
+cat("stored spending_step:", res$spending_step, "\n")
+cat(grep("step", capture.output(print(res)), value = TRUE), sep = "\n")
+cat("EXPECTED: print() says step 0.5, the stored step\n")

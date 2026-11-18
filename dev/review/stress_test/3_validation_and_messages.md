@@ -2,9 +2,9 @@
 
 Input that should be refused is accepted, valid input is refused, or the error raised does not lead to the mistake.
 
-36 entries. Back to the [index](README.md).
+38 entries. Back to the [index](README.md).
 
-Contents: [C1](#C1), [C2](#C2), [C3](#C3), [C4](#C4), [C5](#C5), [C6](#C6), [C7](#C7), [C8](#C8), [C9](#C9), [C10](#C10), [C11](#C11), [C12](#C12), [C13](#C13), [C14](#C14), [C15](#C15), [C16](#C16), [C17](#C17), [C18](#C18), [C19](#C19), [C20](#C20), [C21](#C21), [C22](#C22), [C23](#C23), [ENV05](#ENV05), [MEM3](#MEM3), [DOC12](#DOC12), [DOC14](#DOC14), [DOC17b](#DOC17b), [DOC17c](#DOC17c), [DOC17d](#DOC17d), [DOC17f](#DOC17f), [DOC17g](#DOC17g), [SR1](#SR1), [SR2](#SR2), [UT2](#UT2), [UT3](#UT3)
+Contents: [C1](#C1), [C2](#C2), [C3](#C3), [C4](#C4), [C5](#C5), [C6](#C6), [C7](#C7), [C8](#C8), [C9](#C9), [C10](#C10), [C11](#C11), [C12](#C12), [C13](#C13), [C14](#C14), [C15](#C15), [C16](#C16), [C17](#C17), [C18](#C18), [C19](#C19), [C20](#C20), [C21](#C21), [C22](#C22), [C23](#C23), [ENV05](#ENV05), [MEM3](#MEM3), [DOC12](#DOC12), [DOC14](#DOC14), [DOC17b](#DOC17b), [DOC17c](#DOC17c), [DOC17d](#DOC17d), [DOC17f](#DOC17f), [DOC17g](#DOC17g), [SR1](#SR1), [SR2](#SR2), [UT2](#UT2), [UT3](#UT3), [HS3](#HS3), [HS6](#HS6)
 
 ---
 
@@ -47,7 +47,7 @@ cat("EXPECTED: repeated p-values of 1 at analysis 1 (it cannot reject);",
     "analyses 2 and 3 transformed\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 sfLDOF cumulative spend of 0.025 at the three analyses: 0 0.001525323 0.025
@@ -125,7 +125,7 @@ cat("EXPECTED: an error that names gsBound1() and the two information fractions,
     "or a transform (sfLDOF is well ordered)\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 transform_pvalues_gsd() with sfLDOF says:
@@ -206,7 +206,7 @@ cat("calc_power_pvals_gsd() on that object says:\n", msg, "\n")
 cat("EXPECTED: 1 1 for both hypotheses (a missing p-value cannot reject) and no error\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 trial 1, H1 (two analyses), repeated p-values: 1 1
@@ -273,7 +273,7 @@ for (grid_size in c(2, 8, 64, 1024)) {
 cat("EXPECTED: a grid_size that puts the type I error above the level is refused\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 grid_size    2: exact type I error 0.005319 = 1.064 x the level
@@ -328,7 +328,7 @@ cat("sfLDOF(0.005, 0.1)$spend:", sfLDOF(0.005, 0.1)$spend, " exact spend:",
 cat("EXPECTED: ratio 1 in every row\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
      raw_p repeated_p    exact ratio
@@ -390,7 +390,7 @@ cat("transform_pvalues_gsd() says:\n", msg, "\n")
 cat("EXPECTED: an error that names hypothesis 3 and says that its spending function failed\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 transform_pvalues_gsd() says:
@@ -436,7 +436,7 @@ With this change the script prints "The spending function for hypothesis 3 is no
 
 **What the error is.** `graph_constraint(c(0.333, 0.333, 0.333), tolerance = 0.01)` is accepted, as the argument promises. The optimiser then cannot use the constraint. The default call stops with "Infeasible: no free weights and fixed sum=0.999000 (!=1)", which does not mention the tolerance the user set. With `global_search = FALSE` the local search runs first and the call then stops with "The supplied `hyp_weight` and `trans_matrix` do not build a valid graph", after two warnings.
 
-**What causes it.** The tolerance is stored on the constraint (`R/graph_constraint.R:103, 149`) and used by the constructor. The optimisers work to `sqrt(.Machine$double.eps)`: the start-graph projection `closest_graph_to_constraints()` is called without the stored value (`R/optimisation_start.R:20`; its own default at `R/graph_constraint.R:435`), `is_graph_valid()` is called with its default after each stage (`R/optimisation.R:339, 459`), and the late error comes from the graph check of `calc_power_pvals()` (`R/calc_power.R:131-143`) inside the pruning step.
+**What causes it.** The tolerance is stored on the constraint (`R/graph_constraint.R:103, 149`) and used by the constructor. The optimisers work to `sqrt(.Machine$double.eps)`: the start-graph projection `closest_graph_to_constraints()` is called without the stored value (`R/optimisation_start.R:20`; its own default at `R/graph_constraint.R:435`), `is_graph_valid()` is called with its default after each stage (`R/optimisation.R:339, 459`), and the late error comes from the graph check of `calc_power_pvals()` (`R/calc_power.R:140-152`) inside the pruning step.
 
 **Code showing the problem** ([`reprex/C7.R`](reprex/C7.R)):
 
@@ -463,7 +463,7 @@ cat("graph_optimise():", msg, "\n")
 cat("EXPECTED: a search within the stored tolerance, or an error that names the tolerance\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 constraint accepted: fixed weights sum to 0.999 with tolerance 0.01
@@ -509,7 +509,7 @@ The tested message also gives the optimisers' tolerance and points to `normalise
 
 **What the error is.** Two size mistakes get messages that do not describe them. Four weights with a 3 x 3 matrix stop `graph_constraint()` with "length of 'dimnames' [1] not equal to array extent"; the package's own message for this case cannot be reached, and `diagnose = TRUE` prints nothing. A valid constraint for 3 hypotheses passed to `graph_optimise()` with p-values for 4 is reported by the kernel as "G must be an m x m matrix matching ncol(pvals)", in terms of an object the user never built. The group sequential optimiser already handles the second mistake well: `graph_optimise_gsd()` stops with a message that names both sizes (part 3 of the script), and so does `calc_power_pvals_gsd()` for a graph of the wrong size.
 
-**What causes it.** `graph_constraint()` builds the object before it validates it (`R/graph_constraint.R:144-152`), and `new_graph_constraint()` attaches the names as dimnames (`R/graph_constraint.R:19-22`), which is where base R stops. `assert_hc_tc_consistency()` (`R/graph_constraint_validation.R:94-113`) and the diagnosis run afterwards, so neither is reachable. `graph_optimise()` compares the gain with the p-values (`R/optimisation.R:147-152`) but never the constraint, so the mismatch travels to `src/graph_shortcut.cpp:70`. `graph_optimise_gsd()` calls `.gsd_check_graph_dims()` (`R/check_gsd.R:164-190`, called at `R/optimisation_gsd.R:292-296`); the fixed-sample optimiser has no such check.
+**What causes it.** `graph_constraint()` builds the object before it validates it (`R/graph_constraint.R:144-152`), and `new_graph_constraint()` attaches the names as dimnames (`R/graph_constraint.R:19-22`), which is where base R stops. `assert_hc_tc_consistency()` (`R/graph_constraint_validation.R:94-113`) and the diagnosis run afterwards, so neither is reachable. `graph_optimise()` compares the gain with the p-values (`R/optimisation.R:147-152`) but never the constraint, so the mismatch travels to `src/graph_shortcut.cpp:592` (`:676` in the parallel kernel). `graph_optimise_gsd()` calls `.gsd_check_graph_dims()` (`R/check_gsd.R:164-190`, called at `R/optimisation_gsd.R:292-296`); the fixed-sample optimiser has no such check.
 
 **Code showing the problem** ([`reprex/C8.R`](reprex/C8.R)):
 
@@ -549,7 +549,7 @@ cat("graph_optimise_gsd(4 hypotheses, constraint for 3):", msg, "\n")
 cat("EXPECTED: errors from the package that name both sizes in 1 and 2, as in 3\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 graph_constraint(4 weights, 3 x 3 matrix): length of 'dimnames' [1] not equal to array extent
@@ -629,7 +629,7 @@ cat('names = "auto":', msg, "\n")
 cat("EXPECTED: the repeated name refused by graph_constraint(); \"auto\" accepted as H1 H2 H3\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 graph_constraint(): accepted
@@ -709,7 +709,7 @@ cat("weights NA 1 1:", msg, "\n")
 cat("EXPECTED: 1 accepted (or an error that shows the list shape); 2 an error naming start_graph[[1]]$hyp_weight\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 one graph, not wrapped in a list: $ operator is invalid for atomic vectors
@@ -782,7 +782,7 @@ cat("control_local(maxeval = 0):", msg, "\n")
 cat("EXPECTED: an error for the unknown name `max_eval`, and for a `maxeval` below 1\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 control_local(max_eval = 10): no error, no warning; evaluations used: 105
@@ -854,7 +854,7 @@ cat("control_global(fitness = function(x) 42):", msg, "\n")
 cat("EXPECTED: an error, since the objective is not a user option\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 control_global(fitness = function(x) 42): accepted; best value found by the global search: 42
@@ -923,10 +923,10 @@ cat("600 terms in 30 groups of 20   : built; value with every hypothesis rejecte
 cat("EXPECTED: the flat sum is built too, or the error says to group the terms\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
-600 terms as one flat sum      : C stack usage  7977348 is too close to the limit
+600 terms as one flat sum      : C stack usage  7977828 is too close to the limit
 600 terms in 30 groups of 20   : built; value with every hypothesis rejected 300  (correct: 300)
 EXPECTED: the flat sum is built too, or the error says to group the terms
 ```
@@ -995,7 +995,7 @@ if (is.character(g)) {
 cat("EXPECTED: built, with value 1.5 when both hypotheses are rejected\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 trial_success_gsd(r1 + (-!!penalty) * r2): Error 1 occurred building shared library.
@@ -1064,7 +1064,7 @@ if (is.character(g)) {
 cat("EXPECTED: built, with value 1 when both hypotheses are rejected\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 trial_success(!!w["pfs"] * r1 + !!w["os"] * r2): Error 1 occurred building shared library.
@@ -1136,7 +1136,7 @@ cat("trial_success(r1 + !!penalty * r2), penalty = -0.5:", neg, "\n")
 cat("EXPECTED: both gains are built\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 trial_success(100000 * r1 + r2): Error 1 occurred building shared library.
@@ -1175,7 +1175,7 @@ With this change the script reports "built" for both gains. Every expression aff
 - Branches: main and gsd-build (the group sequential half on gsd-build only)
 - Potential fix: tested (patch 41)
 
-**What the error is.** The index of `r<i>` or `t<i>` has no upper limit. `trial_success(r100001 + r2)` is accepted: after some seconds (5.6 in the run shown, more on a busy machine) the constructor gives a warning of 688,975 characters that lists every missing index, and it would then go on to compile a gain over 100,001 hypotheses. With one digit more, `r1000001`, it had said nothing after 60 seconds. A slip of the keyboard should be an immediate error.
+**What the error is.** The index of `r<i>` or `t<i>` has no upper limit. `trial_success(r100001 + r2)` is accepted: after some seconds (4.7 in the run shown, more on a busy machine) the constructor gives a warning of 688,975 characters that lists every missing index, and it would then go on to compile a gain over 100,001 hypotheses. With one digit more, `r1000001`, it had said nothing after 60 seconds. A slip of the keyboard should be an immediate error.
 
 **What causes it.** `count_unique_indices()` takes the largest index as the number of hypotheses, builds `1:max_index_found` (`R/trial_success.R:413-414`) and puts every missing index into the warning with `toString(missing_indices)` (`:425-429`). `count_unique_indices_gsd()` does the same (`R/trial_success_gsd.R:760-768`). Neither compares the index with anything.
 
@@ -1198,10 +1198,10 @@ cat("it is a warning of", nchar(warned), "characters, beginning:\n ", substr(war
 cat("EXPECTED: an immediate error for an index no design can have\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
-seconds until the constructor says anything: 6.3
+seconds until the constructor says anything: 4.7
 it is a warning of 688975 characters, beginning:
   Missing indices in the sequence. Expected every index from 1 to 100001, but
 missing 1, 3,
@@ -1264,7 +1264,7 @@ cat("gain, both rejected at analysis 2:", g$func(late), " (1.6 if the table were
 cat("EXPECTED: a warning that discount table `d` is not used in the objective\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 <multigrain_trial_success_gsd/multigrain_trial_success>
@@ -1342,7 +1342,7 @@ cat("limit on loaded libraries (R_MAX_NUM_DLLS):",
 cat("EXPECTED: the library of a discarded gain is released, or the help states the limit\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 gain libraries loaded, before and after 2 gains were built and discarded: 0 2
@@ -1378,7 +1378,7 @@ This text is a suggestion and has not been tested or added. The real cure is a d
 
 **What the error is.** A user who names an own measure `disj_power` gets a result with two elements of that name. `out$disj_power` returns the package's value (0.9685 in the script: any of the three hypotheses), and the user's value (0.949: H1 or H2) can be reached only as `out[[5]]`. There is no message. The same holds for the other three built-in names, and for all nine of `calc_power_pvals_gsd()`. Two of those nine, `stop_distribution` and `mean_stop_look`, came with the stopping rule, so code that named its own measure `mean_stop_look` and read it with `$` worked until then and now gets the package's value instead, with no message (the script's own measure returns 99; `$mean_stop_look` gives 1.999). A second defect sits in the same place: an element of the wrong type is always described as "a string", so `custom_power = list(a = 3)` gives "must be a function or a <multigrain_trial_success> object, not a string".
 
-**What causes it.** `.auto_name_custom_power()` checks the type of each entry and fills in missing names (`R/calc_power.R:229-236`). It never compares the names with the four fields that `calc_power_pvals()` builds, and the two lists are joined with `c()` (`R/calc_power.R:155-163`). `.auto_name_custom_power_gsd()` is the same (`R/calc_power_gsd.R:369-376`); its result is joined after the nine built-in fields of `calc_power_pvals_gsd()` (`R/calc_power_gsd.R:239-268`). The type message contains `{.obj_type_friendly item}` (`R/calc_power.R:224`, `R/calc_power_gsd.R:364`): without inner braces cli formats the text "item", which is a string.
+**What causes it.** `.auto_name_custom_power()` checks the type of each entry and fills in missing names (`R/calc_power.R:238-245`). It never compares the names with the four fields that `calc_power_pvals()` builds, and the two lists are joined with `c()` (`R/calc_power.R:164-172`). `.auto_name_custom_power_gsd()` is the same (`R/calc_power_gsd.R:369-376`); its result is joined after the nine built-in fields of `calc_power_pvals_gsd()` (`R/calc_power_gsd.R:239-268`). The type message contains `{.obj_type_friendly item}` (`R/calc_power.R:233`, `R/calc_power_gsd.R:364`): without inner braces cli formats the text "item", which is a string.
 
 **Code showing the problem** ([`reprex/C20.R`](reprex/C20.R)):
 
@@ -1414,7 +1414,7 @@ cat("calc_power_pvals_gsd(custom_power = list(mean_stop_look = ...))$mean_stop_l
 cat("EXPECTED: an error for the names `disj_power` and `mean_stop_look`, and \"not a number\" in the second message\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 names of the result: local_power exp_rejections disj_power conj_power disj_power
@@ -1486,7 +1486,7 @@ cat("local power of H1, analysis 1:", calc_power_pvals_gsd(pvals, w, G)$local_po
 cat("EXPECTED: the same number from all three lines\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 gain (t1 == 1) + 0:          `custom_power$g` and `pvals` disagree on the number of hypotheses.
@@ -1548,7 +1548,7 @@ cat("normalise_sum(c(1, -0.999)):       ", norm, "\n")
 cat("EXPECTED: FALSE with a warning from is_graph_valid(), as its help says; an error from normalise_sum()\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 is_graph_valid(c(0.5, NA, 0.5), G): missing value where TRUE/FALSE needed
@@ -1594,7 +1594,7 @@ With this change `is_graph_valid()` returns `FALSE` with the first warning, the 
 
 **What the error is.** A graph with "epsilon" edges is evaluated wrongly when the epsilon is typed too small. In the script two primaries pass `1 - e` to each other and `e` to their own secondary, so H3 holds half the level, 0.0125, once both primaries are rejected. With `e = 1e-6` the kernel agrees; with `e = 1.2e-16` H3 is rejected at p = 0.013 (level 8% too high); with `e = 1e-300` H3 is not rejected at p = 0.012 (level 0: the recycled alpha is lost). `is_graph_valid()` returns `TRUE` each time. Only hand-typed graphs are affected, since the optimiser sets edges below 1e-5 to 0 (`R/post_optim_processing.R:27-28`).
 
-**What causes it.** The precision is lost before the kernel runs: `1 - 1.2e-16` is stored as the nearest double, `1 - 1.1e-16`, and `1 - 1e-300` as exactly 1. After a rejection the kernel divides by `1 - g_ij * g_ji` (`src/graph_shortcut.cpp:128-140`), which then has few correct digits or none; when it is exactly 0 the "degenerate case" branch sets the whole row to 0 (`src/graph_shortcut.cpp:143-148`).
+**What causes it.** The precision is lost before the kernel runs: `1 - 1.2e-16` is stored as the nearest double, `1 - 1.1e-16`, and `1 - 1e-300` as exactly 1. After a rejection the kernel divides by `1 - g_ij * g_ji` (`src/graph_shortcut.cpp:287-299`; the table builder does the same at `:447-458`), which then has few correct digits or none; when it is exactly 0 the "degenerate case" branch sets the whole row to 0 (`src/graph_shortcut.cpp:302-307`; `:460-463` in the table builder). A graph whose smallest update denominator is below 1e-6 runs wholly on the sequential kernel since the fast shortcut was merged, so both kernels behave as described here.
 
 **Code showing the problem** ([`reprex/C23.R`](reprex/C23.R)):
 
@@ -1623,7 +1623,7 @@ for (e in c(1e-6, 1.2e-16, 1e-300)) {
 cat("EXPECTED: TRUE at p = 0.012 and FALSE at p = 0.013 for every e, or a warning that the edge is too small\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 e = 1e-06 : graph valid: TRUE  H3 rejected at p = 0.012: TRUE  at p = 0.013: FALSE
@@ -1687,7 +1687,7 @@ cat(sprintf("  %s\n", trimws(sub(" *//.*", "", grep("e\\+00", log, value = TRUE)
 cat("EXPECTED: the gain is built; `scipen` only controls how R prints numbers\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 trial_success(r1 + 2 * r2) under options(scipen = -5): Error 1 occurred building shared library.
@@ -1729,9 +1729,9 @@ With this change the script prints "built" and no compiler output, and the user'
 - Branches: main and gsd-build (the group sequential kernels on gsd-build only)
 - Potential fix: tested (patch 12)
 
-**What the error is.** None of the four compiled kernels checks for a user interrupt, so Ctrl-C or Esc has no effect until the kernel call has returned. In the script one call of `calc_power_pvals()` on 10,000 trials of 64 hypotheses takes 3 to 6 s on the test machine, and an interrupt sent 0.5 s into a second call is acted on only when that call has done all its work. The work per trial grows with up to the cube of the number of hypotheses, so a mistaken call on a wide design, or with far more trials than intended, holds the session until it ends. No result is affected.
+**What the error is.** None of the four compiled kernels checks for a user interrupt, so Ctrl-C or Esc has no effect until the kernel call has returned. In the script one call of `calc_power_pvals()` on 10,000 trials of 64 hypotheses takes about 3 s on the test machine (2.9 s in the run shown; up to 6 s when it is busy), and an interrupt sent 0.5 s into a second call is acted on only when that call has done all its work. The work per trial grows with up to the cube of the number of hypotheses, so a mistaken call on a wide design, or with far more trials than intended, holds the session until it ends. No result is affected.
 
-**What causes it.** There is no call of `Rcpp::checkUserInterrupt()` anywhere in `src/`. The serial trial loops run from the first trial to the last (`src/graph_shortcut.cpp:94`, `src/graph_shortcut_gsd.cpp:164`), and each parallel kernel makes one `parallelFor()` call over all trials (`src/graph_shortcut.cpp:362-363`, `src/graph_shortcut_gsd.cpp:528-529`).
+**What causes it.** There is no call of `Rcpp::checkUserInterrupt()` anywhere in `src/`. The serial trial loops run from the first trial to the last (`src/graph_shortcut.cpp:625` and, for the table kernel, `:500`; `src/graph_shortcut_gsd.cpp:164`), and each parallel kernel makes one `parallelFor()` call over all trials (`src/graph_shortcut.cpp:703-704` and `:729-730`, `src/graph_shortcut_gsd.cpp:528-529`).
 
 **Code showing the problem** ([`reprex/MEM3.R`](reprex/MEM3.R)):
 
@@ -1766,11 +1766,11 @@ cat("the call ran to its end before the interrupt was seen:", finished, "\n")
 cat("EXPECTED: the call abandoned shortly after 0.5 s (FALSE in the line above)\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
-one uninterrupted call takes 3.1 s
-interrupt sent at 0.5 s, acted on at 3 s
+one uninterrupted call takes 2.9 s
+interrupt sent at 0.5 s, acted on at 2.8 s
 the call ran to its end before the interrupt was seen: TRUE
 EXPECTED: the call abandoned shortly after 0.5 s (FALSE in the line above)
 ```
@@ -1827,7 +1827,7 @@ cat("mentions parentheses:", grepl("parenthes", msg), "\n")
 cat("EXPECTED: a message that says how R grouped the expression and where to put parentheses\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 error message:
@@ -1891,7 +1891,7 @@ cat("con$tolerance <- 1e-6:", msg, "\n")
 cat("EXPECTED: an error saying that only hyp_constraint and trans_constraint can be replaced\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 con$hyp_constraint <- c(NA, NA, NA): weights now NA NA NA
@@ -1926,7 +1926,7 @@ With this change the script stops with that message. Replacing either of the two
 
 **What the error is.** `calc_power_pvals(pvals, c(1L, 0L), G)` stops with "`hyp_weight` must be a double, not an integer vector", and an integer `trans_matrix` with "must be a double matrix, not an integer matrix". The help describes the two arguments as "a numeric vector" and "a numeric matrix", and `is_graph_valid()` accepts the same integer input and returns `TRUE`. A fixed sequence holds only the values 0 and 1, so integer input is easy to produce, for example with `c(1L, 0L)` or from a matrix read from a file. The user is told that a valid graph has the wrong type.
 
-**What causes it.** `check_double(hyp_weight)` and `check_double_matrix(trans_matrix)` (`R/calc_power.R:125-126`, `R/calc_power_gsd.R:126-127`) rest on `rlang::is_double()` (`R/check_types.R:17, 49`), which is `FALSE` for an integer vector. The help text is inherited from `is_graph_valid()` (`R/utils.R:78, 81`).
+**What causes it.** `check_double(hyp_weight)` and `check_double_matrix(trans_matrix)` (`R/calc_power.R:134-135`, `R/calc_power_gsd.R:126-127`) rest on `rlang::is_double()` (`R/check_types.R:17, 49`), which is `FALSE` for an integer vector. The help text is inherited from `is_graph_valid()` (`R/utils.R:78, 81`).
 
 **Code showing the problem** ([`reprex/DOC17b.R`](reprex/DOC17b.R)):
 
@@ -1948,7 +1948,7 @@ cat("is_graph_valid(c(1L, 0L), G):", is_graph_valid(c(1L, 0L), G), "\n")
 cat("EXPECTED: the same local power from both calls\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 hyp_weight = c(1, 0):   0.89 0.704
@@ -2004,7 +2004,7 @@ cat("tolerance = -1:   ", neg, "\n")
 cat("EXPECTED: an error saying that `tolerance` must be at least 0 (the help says \"numeric >= 0\")\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 default tolerance: 0.25 0.45 0.3
@@ -2053,7 +2053,7 @@ cat("fixed_idx = -1L: ", negative, "\n")
 cat("EXPECTED: an error naming `fixed_idx` in both cases: positions run from 1 to 3\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 no fixed element: 0.1818182 0.2727273 0.5454545
@@ -2112,7 +2112,7 @@ cat("plot(graph_optimal_example, root = 7):", msg, "\n")
 cat("EXPECTED: an error saying that `root` must lie between 1 and 4\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 hypotheses in the bundled example graph: 4
@@ -2153,7 +2153,7 @@ This is a suggestion: it is not in the patch series, has no test, and the script
 
 **What the error is.** `is_graph_valid(w, G, sum_to_one_constraint = NA)` stops with "missing value where TRUE/FALSE needed", and `c(TRUE, FALSE)` with "the condition has length > 1". Neither message names the argument, and both power functions pass the flag on and fail with the same words. The help of `is_graph_valid()` says that a failed check gives `FALSE` and a warning. For an unusable flag an error is the right outcome, but it should say which argument is at fault. `NA` arises easily when the flag is computed, for example from a comparison that involves a missing value.
 
-**What causes it.** `check_logical(sum_to_one_constraint)` (`R/utils.R:125`, `R/calc_power.R:129`, `R/calc_power_gsd.R:130`) accepts a logical vector of any length and, with its default `allow_na = TRUE`, missing values (`R/import-standalone-types-check.R:313-335`). The flag is then used as the condition of `if (sum_to_one_constraint)` (`R/utils.R:189`).
+**What causes it.** `check_logical(sum_to_one_constraint)` (`R/utils.R:125`, `R/calc_power.R:138`, `R/calc_power_gsd.R:130`) accepts a logical vector of any length and, with its default `allow_na = TRUE`, missing values (`R/import-standalone-types-check.R:313-335`). The flag is then used as the condition of `if (sum_to_one_constraint)` (`R/utils.R:189`).
 
 **Code showing the problem** ([`reprex/DOC17g.R`](reprex/DOC17g.R)):
 
@@ -2175,7 +2175,7 @@ cat("sum_to_one_constraint = c(TRUE, FALSE):", two, "\n")
 cat("EXPECTED: an error saying that `sum_to_one_constraint` must be TRUE or FALSE\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 sum_to_one_constraint = NA:             missing value where TRUE/FALSE needed
@@ -2235,7 +2235,7 @@ cat("EXPECTED: a warning (or an error) that `!r1` and `r1 || TRUE` hold with no 
 cat("          so they stop trials for futility, not for efficacy\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 no rule    stop at analysis 1, 2, 3: 0.000 0.053 0.947   disjunctive power: 0.969
@@ -2303,7 +2303,7 @@ cat("EXPECTED: a message saying that rejection indicators are written r1, r2, ..
 cat("          (lower-case r, numbered from 1), not advice to inject `R1` with !!\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 stopping_rule_gsd("R1 and R2"):
@@ -2374,7 +2374,7 @@ cat("the wrapped form, function(a, t) gsDesign::sfHSD(a, t, param = -4):", ok, "
 cat("EXPECTED: a message that names the hypothesis and shows the wrapped form\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 spending = gsDesign::sfHSD          argument "param" is missing, with no default
@@ -2446,7 +2446,7 @@ cat("spent by sfLDOF at information fraction 0.8:", signif(gsDesign::sfLDOF(0.02
 cat("EXPECTED: a warning that H1 and H2 never reach an information fraction of 1 and spend only part of the level\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 type I error of H1 (all alpha on H1): 0.012  level: 0.025
@@ -2483,3 +2483,89 @@ if (length(short) > 0L) {
 
 Tried in a scratch build: the script then prints the warning with 0.0122 of 0.025 for each hypothesis, and nothing else changes. In the full test suite one test of Alex's raises the warning, since it uses a single interim analysis on purpose (`tests/testthat/test-transform_pvalues_gsd.R:245`); it would need `expect_warning()`. A line in `summary()` instead of a warning is the quieter alternative.
 
+---
+
+<a name="HS3"></a>
+## HS3. An empty or blank id is accepted and gives a parameter with no name
+
+- Functions: sf_hsd_opt(); transform_pvalues_gsd(), print() and resolve_pvalues_gsd() downstream
+- Branches: gsd-build-spending only
+- Potential fix: tested on an earlier state of the branch (`e45ee1f`, 15 October 2026) in a scratch build, not retested here
+
+**What the error is.** `sf_hsd_opt(id = "")` and `sf_hsd_opt(id = "  ")` are accepted. The parameter is then called `""`. The spec prints `sfHSD(param =  in [-1, 0])` and a line starting with `: bounds`. Passing the value back by that name to `resolve_pvalues_gsd()` fails with a garbled message: "value NA for is not a node of its lattice ... The nearest nodes are NA and NA". An unnamed value is accepted.
+
+**What causes it.** `.hsd_check_id()` (`R/transform_pvalues_gsd_opt.R:115-131`) checks the type, the length and `NA`, not the content.
+
+**Code showing the problem** ([`reprex/HS3.R`](reprex/HS3.R)):
+
+```r
+# HS3: an empty or blank id is accepted and gives a parameter with no name
+# Run: Rscript HS3.R   (needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+for (id in c("", "  ")) {
+    tag <- tryCatch(sf_hsd_opt(id = id, bounds = c(-1, 0), step = 0.5), error = function(e) conditionMessage(e))
+    cat(sprintf("sf_hsd_opt(id = \"%s\"): %s\n", id, if (is.function(tag)) "accepted" else tag))
+}
+set.seed(1)
+raw  <- array(stats::runif(200 * 2 * 2), dim = c(200L, 2L, 2L))
+spec <- transform_pvalues_gsd(raw, info_frac = c(0.5, 1), grid_size = 64L,
+                              spending = list(gsDesign::sfLDOF, sf_hsd_opt(id = "", bounds = c(-1, 0), step = 0.5)))
+cat(grep("sfHSD|bounds", capture.output(print(spec)), value = TRUE), sep = "\n")
+v <- c(-0.5); names(v) <- ""
+cat("resolve_pvalues_gsd() with that name:", tryCatch({ resolve_pvalues_gsd(spec, v); "ran" },
+    error = function(e) gsub("\\s+", " ", paste(conditionMessage(e), collapse = " "))), "\n")
+cat("EXPECTED: an error from sf_hsd_opt(): id must be a non-empty string\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+sf_hsd_opt(id = ""): accepted
+sf_hsd_opt(id = "  "): accepted
+H2: sfHSD(param =  in [-1, 0])
+: bounds [-1, 0], step 0.5, 3 nodes, start -0.5
+resolve_pvalues_gsd() with that name: `spending_param` value NA for is not a node of its lattice. ℹ The nearest nodes are NA and NA; the lattice runs from -1 to 0 in steps of 0.5.
+EXPECTED: an error from sf_hsd_opt(): id must be a non-empty string
+```
+
+**Potential fix.** Add `(is.numeric(id) || nzchar(trimws(id)))` to the check and say "non-empty" in the message. On `e45ee1f` two message snapshots in `tests/testthat/test-transform_pvalues_gsd_opt.R` changed with it.
+
+---
+
+<a name="HS6"></a>
+## HS6. A value above the lattice is told its nearest nodes are "0 and NA"
+
+- Functions: resolve_pvalues_gsd()
+- Branches: gsd-build-spending only
+- Potential fix: tested on an earlier state of the branch (`e45ee1f`, 15 October 2026) in a scratch build, not retested here
+
+**What the error is.** `resolve_pvalues_gsd(spec, 5)` on a lattice from -1 to 0 says "The nearest nodes are 0 and NA". A value below the lattice gets a correct message.
+
+**What causes it.** `.hsd_abort_off_lattice()` (`R/transform_pvalues_gsd_opt.R:987-1009`): `above[1L]` is `NA` when no node is above the value, so `nearest` has length 2.
+
+**Code showing the problem** ([`reprex/HS6.R`](reprex/HS6.R)):
+
+```r
+# HS6: a value above the lattice is told its nearest nodes are "0 and NA"
+# Run: Rscript HS6.R   (needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+set.seed(1)
+raw  <- array(stats::runif(200 * 2 * 2), dim = c(200L, 2L, 2L))
+spec <- transform_pvalues_gsd(raw, info_frac = c(0.5, 1), grid_size = 64L,
+                              spending = list(gsDesign::sfLDOF, sf_hsd_opt(bounds = c(-1, 0), step = 0.5)))
+for (v in c(5, -5)) cat(sprintf("resolve_pvalues_gsd(spec, %2d): %s\n", v, tryCatch({ resolve_pvalues_gsd(spec, v); "ran" },
+    error = function(e) gsub("\\s+", " ", paste(conditionMessage(e), collapse = " ")))))
+cat("EXPECTED: for 5, a message that the value is outside the lattice and the nearest node is 0\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+resolve_pvalues_gsd(spec,  5): `spending_param` value 5 for gamma is not a node of its lattice. ℹ The nearest nodes are 0 and NA; the lattice runs from -1 to 0 in steps of 0.5.
+resolve_pvalues_gsd(spec, -5): `spending_param` value -5 for gamma is not a node of its lattice. ℹ The nearest node is -1; the lattice runs from -1 to 0 in steps of 0.5.
+EXPECTED: for 5, a message that the value is outside the lattice and the nearest node is 0
+```
+
+**Potential fix.** Drop the `NA` and say that the value is outside the lattice: "It is outside the lattice; the nearest node is 0". The message for a value below the lattice gains the same words, and its snapshot changes.

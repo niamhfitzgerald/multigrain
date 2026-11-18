@@ -1,11 +1,14 @@
-# MEM1: the serial kernels compute matrix offsets in 32-bit integers
-# Run from the repository root: Rscript MEM1.R   (reads src/graph_shortcut.cpp; allocates nothing)
+# MEM1: the serial group sequential kernel computes matrix offsets in 32-bit integers
+# Run from the repository root: Rscript MEM1.R   (reads src/graph_shortcut_gsd.cpp and src/graph_shortcut.cpp; allocates nothing)
 # fmt: skip file
-src <- trimws(readLines("src/graph_shortcut.cpp"))
-cat("in graph_shortcut(), the serial fixed-sample kernel:\n")
-for (pattern in c("N = pvals.nrow()", "; set < ", "p_ptr[set", "h_ptr[set")) {
+src <- trimws(readLines("src/graph_shortcut_gsd.cpp"))
+cat("in graph_shortcut_gsd(), the serial group sequential kernel:\n")
+for (pattern in c("N  = pvals.nrow()", "; set < N", "p_ptr[set", "h_ptr[set")) {
     cat("   ", grep(pattern, src, fixed = TRUE, value = TRUE)[1], "\n")
 }
+fs <- trimws(readLines("src/graph_shortcut.cpp"))
+cat("the fixed-sample kernel, for comparison (64 bits since the fast shortcut):\n")
+cat("   ", grep("const std::size_t set, SequentialScratch", fs, fixed = TRUE, value = TRUE)[1], "\n")
 
 n_trials <- 1e8                           # 1e8 trials of 22 hypotheses: 2.2e9 p-values, 17.6 GB
 n_hyp <- 22

@@ -1,0 +1,67 @@
+The catalogue scripts of version 18 November 2026 on split-merge (ff9d907) and on main (508d0b7), run from the root of each build.
+Only scripts that ran (exit status 0) on at least one of the two builds are listed; the others need the group
+sequential functions, which neither branch has. HS scripts and ENV08 were not run on this branch.
+
+script           main branch  output
+A1                  0      0  same
+A2                  0      0  differs  (run-to-run values)
+A3                  0      0  same
+A4                  0      0  same
+B1                  0      0  same
+B2                  0      0  differs  (with this seed the local solution is returned; B2 itself remains, see SM_B2_seeds_*.out)
+B3_power            0      0  same
+B3_simulators       0      0  same
+B4                  0      0  same
+B5                  0      0  same
+B6                  0      0  same
+B7                  0      0  same
+B9                  0      0  same
+C10                 0      0  same
+C11                 0      0  same
+C12                 0      0  same
+C13                 0      0  differs  (run-to-run values)
+C14                 0      0  same
+C15                 0      0  same
+C16                 0      0  same
+C17                 0      0  differs  (run-to-run values)
+C19                 0      0  same
+C2                  0      0  same
+C22                 0      0  same
+C23                 0      0  same
+C6                  0      0  same
+C7                  0      0  same
+C9                  0      0  same
+DOC1                0      0  same
+DOC10               0      0  same
+DOC11               0      0  same
+DOC12               0      0  same
+DOC14               0      0  same
+DOC15               0      0  same
+DOC16               0      0  differs  (version number only: the branch predates the version bumps)
+DOC17a              0      0  same
+DOC17b              0      0  same
+DOC17c              0      0  same
+DOC17d              0      0  same
+DOC17f              0      0  same
+DOC17g              0      0  same
+DOC17h              0      0  same
+DOC18               0      0  same
+DOC19               0      0  same
+DOC2                0      0  same
+DOC4                0      0  same
+DOC7                0      0  differs  (the branch predates the 'Changes' heading of NEWS.md)
+DOC8                0      0  differs  (the rebuilt example graph differs, as the optimiser changed; DOC8 itself remains)
+DOC9                0      0  same
+D_ggplot2_optional    0      0  same
+D_global_output     0      0  same
+D_graphics_undeclared    0      0  same
+D_local_weights     0      0  same
+D_plot_rounding     0      0  same
+ENV01               0      0  same
+ENV02               0      0  differs  (run-to-run values)
+ENV03_power         0      0  same
+ENV04               0      0  same
+ENV05               0      0  same
+MEM3                0      0  differs  (run-to-run values)
+MEM4                0      0  same
+SR2                 0      0  same

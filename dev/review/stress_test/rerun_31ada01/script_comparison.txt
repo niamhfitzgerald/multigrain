@@ -1,0 +1,102 @@
+Every script of this folder, run on 18 November 2026 from the root of each build.
+5585caf: gsd-build-spending on 21 October. 31ada01: gsd-build-spending now. 508d0b7: main now.
+'recorded' is the output shown in the version of 21 October (captured on 5585caf).
+Trailing spaces are ignored. 'new' marks a script added in this version; HS scripts were run on 31ada01 only.
+Exit status 1 on main is a script that needs the group sequential functions or files.
+
+script           exit exit exit  31ada01 = recorded   31ada01 = 5585caf    main = 31ada01
+                 5585 31ad main
+A1                  0    0    0  same                 same                 same
+A2                  0    0    0  differs              differs              differs  (run-to-run values)
+A3                  0    0    0  same                 same                 differs  (on main: yes; differs only in lines about group sequential functions or files)
+A4                  0    0    0  same                 same                 same
+A5                  0    0    1  same                 same                 differs  (on main: no)
+B1                  0    0    0  same                 same                 same
+B2                  0    0    0  same                 same                 same
+B3_power            0    0    0  same                 same                 same
+B3_simulators       0    0    0  same                 same                 same
+B4                  0    0    0  same                 same                 same
+B5                  0    0    0  same                 same                 same
+B6                  0    0    0  same                 same                 same
+B7                  0    0    0  same                 same                 same
+B9                  0    0    0  same                 same                 same
+C1                  0    0    1  same                 same                 differs  (on main: no)
+C10                 0    0    0  same                 same                 same
+C11                 0    0    0  same                 same                 same
+C12                 0    0    0  same                 same                 same
+C13                 0    0    0  differs              differs              differs  (run-to-run values)
+C14                 0    0    0  same                 same                 differs  (on main: no)
+C15                 0    0    0  same                 same                 same
+C16                 0    0    0  same                 same                 same
+C17                 0    0    0  differs              differs              differs  (run-to-run values)
+C18                 0    0    1  same                 same                 differs  (on main: no)
+C19                 0    0    0  same                 same                 same
+C2                  0    0    0  same                 same                 differs  (on main: no)
+C20                 0    0    1  same                 same                 differs  (on main: yes; differs only in lines about group sequential functions or files)
+C21                 0    0    1  same                 same                 differs  (on main: no)
+C22                 0    0    0  same                 same                 same
+C23                 0    0    0  same                 same                 same
+C3                  0    0    1  same                 same                 differs  (on main: no)
+C4                  0    0    1  same                 same                 differs  (on main: no)
+C5                  0    0    1  same                 same                 differs  (on main: no)
+C6                  0    0    0  same                 same                 differs  (on main: no)
+C7                  0    0    0  same                 same                 same
+C8                  0    0    1  same                 same                 differs  (on main: yes; differs only in lines about group sequential functions or files)
+C9                  0    0    0  same                 same                 same
+DOC1                0    0    0  same                 same                 same
+DOC10               0    0    0  same                 same                 same
+DOC11               0    0    0  same                 same                 same
+DOC12               0    0    0  same                 same                 differs  (on main: no)
+DOC13               0    0    1  same                 same                 differs  (on main: yes; R/trial_success.R calls sourceCpp() at line 239 there, against 314, and the group sequential file is missing)
+DOC14               0    0    0  same                 same                 same
+DOC15               0    0    0  same                 same                 differs  (on main: yes; main's get-started article has no link to the trial success article)
+DOC16               0    0    0  differs              differs              differs  (version number only; error still present. Against main: rmarkdown and gridExtra are called on 1 line there, 2 here, from the joint spending article)
+DOC17a              0    0    0  same                 same                 same
+DOC17b              0    0    0  same                 same                 same
+DOC17c              0    0    0  same                 same                 same
+DOC17d              0    0    0  same                 same                 same
+DOC17f              0    0    0  same                 same                 same
+DOC17g              0    0    0  same                 same                 same
+DOC17h              0    0    0  same                 same                 same
+DOC18               0    0    0  same                 same                 same
+DOC19               0    0    0  same                 same                 same
+DOC2                0    0    0  same                 same                 same
+DOC4                0    0    0  same                 same                 differs  (on main: no)
+DOC6                0    0    1  same                 same                 differs  (on main: no)
+DOC7                0    0    0  differs              differs              differs  (NEWS.md gained a 'Changes' heading; error still present)
+DOC8                0    0    0  same                 same                 same
+DOC9                0    0    0  same                 same                 same
+D_ggplot2_optional    0    0    0  same                 same                 same
+D_global_output     0    0    0  same                 same                 same
+D_graphics_undeclared    0    0    0  same                 same                 same
+D_local_weights     0    0    0  same                 same                 same
+D_plot_rounding     0    0    0  same                 same                 same
+D_power_nominal     0    0    1  same                 same                 differs  (on main: no)
+ENV01               0    0    0  same                 same                 same
+ENV02               0    0    0  differs              differs              differs  (run-to-run values)
+ENV03_power         0    0    0  same                 same                 same
+ENV03_spending      0    0    1  same                 same                 differs  (on main: no)
+ENV04               0    0    0  same                 same                 same
+ENV05               0    0    0  same                 same                 same
+ENV08               0    0    0  new                  differs              same  (new: the old option name works on 5585caf)
+HS1                 -    0    -  new                  -                    -
+HS10                -    0    -  new                  -                    -
+HS2                 -    0    -  new                  -                    -
+HS3                 -    0    -  new                  -                    -
+HS4                 -    0    -  new                  -                    -
+HS5                 -    0    -  new                  -                    -
+HS6                 -    0    -  new                  -                    -
+HS7                 -    0    -  new                  -                    -
+HS8                 -    0    -  new                  -                    -
+HS9                 -    0    -  new                  -                    -
+MEM1                0    0    1  differs              differs              differs  (script changed: now reads the group sequential kernel; narrowed)
+MEM3                0    0    0  differs              differs              same  (run-to-run values)
+MEM4                0    0    0  same                 same                 same
+SR1                 0    0    1  same                 same                 differs  (on main: no)
+SR2                 0    0    0  same                 same                 differs  (on main: no)
+ST1                 0    0    1  same                 same                 differs  (on main: no)
+UT2                 0    0    1  same                 same                 differs  (on main: no)
+UT3                 0    0    1  same                 same                 differs  (on main: no)
+UT4                 0    0    1  same                 same                 differs  (on main: no)
+UT5                 0    0    1  same                 same                 differs  (on main: no)
+UT6                 0    0    1  same                 same                 differs  (on main: no)

@@ -1,0 +1,25 @@
+Each graph scored on the 10,000 trials it was optimised on (reported) and on 100,000 fresh trials (fresh).
+Same problems, seeds and trials on both builds; one thread.
+
+ problem       build runs mean_fresh best_fresh worst_fresh optimism
+     P4w        main    5     0.7647     0.7656      0.7634   0.0013
+     P4g        main    5     0.7710     0.7720      0.7697   0.0016
+     P6w        main    3     0.7144     0.7155      0.7136   0.0025
+     P4w split-merge    5     0.7654     0.7655      0.7653   0.0014
+     P4g split-merge    5     0.7716     0.7719      0.7708   0.0017
+     P6w split-merge    3     0.7162     0.7163      0.7160   0.0051
+ mean_seconds
+           36
+           37
+           78
+           77
+           54
+          249
+
+Paired by seed, split-merge minus main (fresh gain):
+ problem pairs mean_diff       se split_merge_better
+     P4g     5  0.000641 0.000445                  3
+     P4w     5  0.000794 0.000390                  4
+     P6w     3  0.001790 0.000528                  3
+
+Both builds are scored on the same fresh trials; se is the standard error of the mean paired difference over seeds.

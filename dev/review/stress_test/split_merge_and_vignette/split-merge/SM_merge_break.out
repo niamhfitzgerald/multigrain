@@ -1,0 +1,7 @@
+graph_optimise_gsd(), fixed spending, global search     ERROR: could not find function ".make_cauchy_mutation_multi"
+graph_optimise_gsd(), joint spending search             ERROR: could not find function ".make_cauchy_mutation_multi"
+graph_optimise_gsd(), fixed spending, global_search = FALSE ran
+graph_optimise(), fixed sample                          ran
+exists .make_cauchy_mutation_multi(): FALSE 
+default_control(): pcrossover 0  pmutation 1 (31ada01 alone: 0.2 and 0.8)
+EXPECTED: every call runs; the group sequential searches keep a mutation that exists

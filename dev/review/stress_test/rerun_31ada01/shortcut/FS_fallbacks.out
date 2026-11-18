@@ -1,0 +1,42 @@
+Loading required namespace: graphicalMCP
+ m       e graphs min_denom table_used mismatching_trials
+ 4 1.0e-02      3  5.10e-03          3                  0
+ 4 1.0e-04      3  3.97e-05          3                  0
+ 4 1.0e-05      3  4.42e-06          3                  0
+ 4 2.0e-06      3  8.44e-07          2                  0
+ 4 6.0e-07      3  6.60e-08          0                  0
+ 4 5.0e-07      3  2.55e-07          0                  0
+ 4 4.0e-07      3  2.33e-07          0                  0
+ 4 1.0e-08      3  1.73e-10          0                  0
+ 4 1.0e-12      3  1.06e-13          0                  0
+ 4 1.0e-15      3  2.22e-16          0                  0
+ 4 1.2e-16      3 -6.22e-02          0                  0
+ 4 0.0e+00      3  9.18e-01          3                  0
+ 8 1.0e-02      3  2.62e-03          3                  0
+ 8 1.0e-04      3  5.68e-05          3                  0
+ 8 1.0e-05      3  1.52e-06          3                  0
+ 8 2.0e-06      3  6.04e-07          0                  0
+ 8 6.0e-07      3  1.72e-07          0                  0
+ 8 5.0e-07      3  1.32e-07          0                  0
+ 8 4.0e-07      3  1.06e-07          0                  0
+ 8 1.0e-08      3  1.39e-09          0                  0
+ 8 1.0e-12      3  5.42e-13          0                  0
+ 8 1.0e-15      3  0.00e+00          0                  0
+ 8 1.2e-16      3  2.22e-16          0                  0
+ 8 0.0e+00      3  7.04e-01          3                  0
+ m       e graphs min_denom table_used mismatching_trials
+FS9   PASS ill-conditioned graphs, e from 1e-2 to 0, m = 4 and 8: table, 2 threads and sequential agree on all 72 x 3,000 trials
+FS10  PASS min_denom gives the same kernel choice as an independent enumeration of every denominator applied to a non-zero entry: 0 of 300 graphs disagree; largest relative difference 3.8e-07 (rounding: R divides, the kernel multiplies by the reciprocal)
+FS11  PASS near-tie probes in table-kernel graphs: 0 of 40680 disagree; largest relative gap between the R and table critical values 4.6e-11
+      largest familywise error 0.0247 (alpha 0.025, standard error 0.00035); kernels used: table 24
+FS12  PASS familywise error on 24 designs (12 global nulls, 12 partial), 200,000 trials each: none above alpha + 3 standard errors
+FS13  PASS auto rule switches at 2^m = 2N with the same rejections: m = 6: sequential for 31 trials, table for 32; m = 10: sequential for 511 trials, table for 512; m = 14: sequential for 8191 trials, table for 8192
+Warning messages:
+1: In graphicalMCP::graph_create(g$w, g$G) :
+  Some transition weights are very small (< 1e-6). This may cause numerical instability in hypothesis weights due to floating-point precision. Consider using larger values.
+2: In graphicalMCP::graph_create(g$w, g$G) :
+  Some transition weights are very small (< 1e-6). This may cause numerical instability in hypothesis weights due to floating-point precision. Consider using larger values.
+FS14  PASS table kernel = graphicalMCP::graph_test_shortcut() on 27 near-degenerate graphs that still use the table (d from 1.1e-6 to 2e-5) x 60 trials; mismatching graphs: 0
+
+6 of 6 checks passed
+exit 0

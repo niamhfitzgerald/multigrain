@@ -1,0 +1,54 @@
+R CMD check and the test suite, 18 November 2026
+R 4.3.3 on Linux (x86_64, g++ 13.3.0, 2 cores); ggplot2 3.4.4, ggraph 2.1.0, igraph 1.6.0, vdiffr 1.0.7, svglite 2.1.3, testthat 3.2.1, spelling 2.2.1
+
+== R CMD check --no-manual --ignore-vignettes (the test suite runs inside it), tarball from R CMD build --no-build-vignettes
+-- 31ada01
+testthat.Rout.fail: [ FAIL 18 | WARN 30 | SKIP 29 | PASS 3703 ]
+check.log:  NOTE
+check.log: * checking for GNU extensions in Makefiles ... NOTE
+check.log: * checking examples ... OK
+check.log:  ERROR
+check.log: Status: 1 ERROR, 2 NOTEs
+check.log: Package suggested but not available for checking: 'gMCPLite' (not installed when the check ran)
+
+Failures: 18, all vdiffr plot snapshots:
+  1 test-plot_graph_constraint.R:116:5 plot and autoplot with user-supplied title
+  1 test-plot_graph_constraint.R:124:5 plot and autoplot with user-supplied title
+  1 test-plot_graph_constraint.R:35:5 graph_constraint plotting with autoplot
+  1 test-plot_graph_constraint.R:71:5 graph_constraint plotting with plot
+  1 test-plot_graph_optimal.R:124:5 plot bretz_et_al_2009 graph
+  1 test-plot_graph_optimal.R:140:5 plot random graph
+  1 test-plot_graph_optimal.R:156:5 users can control the number of digits and the root
+  1 test-plot_graph_optimal.R:161:5 users can control the number of digits and the root
+  1 test-plot_graph_optimal.R:21:5 graph plotting with graph_custom_power
+  1 test-plot_graph_optimal.R:309:5 modify node position manually
+  1 test-plot_graph_optimal.R:349:5 another custom graph
+  1 test-plot_graph_optimal.R:375:5 autoplot and plot produce the same output: graph_average_power
+  1 test-plot_graph_optimal.R:401:5 autoplot and plot produce the same output: graph_custom_power
+  1 test-plot_graph_optimal.R:425:5 plot and autoplot with random graph
+  1 test-plot_graph_optimal.R:458:5 plot and autoplot with user-supplied title
+  1 test-plot_graph_optimal.R:45:5 graph plotting with graph_average_power
+  1 test-plot_graph_optimal.R:466:5 plot and autoplot with user-supplied title
+  1 test-plot_graph_optimal.R:86:5 plot ferber_et_al_2011 graph
+
+On 21 October 18 snapshots failed on 5585caf and 8af8adb too, in the same two files
+(rerun_5585caf/test_suite_and_check.txt); they fail here with the older plotting packages listed above.
+Otherwise the tests pass: 3,703 expectations pass, 29 are skipped, 0 errors (2,970 pass and 6 skipped
+on 5585caf on 21 October; the merge of main added a test file for the shortcut).
+
+The 29 skips: gMCPLite cannot be loaded (23; it was not installed here when the check ran), apply_ctp
+and apply_ctp_parallel not available (1 each), package sources not available (2), file.exists(path)
+not TRUE (1), On Linux (1). On 21 October there were 6 skips, so gMCPLite was installed then.
+
+== The tests that need gMCPLite, run afterwards with gMCPLite 0.1.7 installed
+testthat::test_file() on the installed 31ada01 build, for the four files that hold the 23 skipped
+tests (test-calc_power.R, test-RcppExports.R, test-objective_function.R, test-optimisation_start.R):
+235 expectations, 0 failed, 0 errors, 2 skipped (apply_ctp and apply_ctp_parallel not available).
+
+The NOTE on GNU make is the same as on 21 October. The NOTE on package dependencies comes from this
+environment (no network to the CRAN index; gMCPLite not installed when the check ran). The hidden-files NOTE of 21 October
+did not appear here; this tarball was built from a git archive export of 31ada01.
+
+== Spelling (tests/spelling.R, error = FALSE, so it never fails a test)
+spelling::spell_check_package(): 23 words on 31ada01, 22 on 5585caf. The new one is arXiv, which the
+merge of main removed from inst/WORDLIST (entry DOC16).

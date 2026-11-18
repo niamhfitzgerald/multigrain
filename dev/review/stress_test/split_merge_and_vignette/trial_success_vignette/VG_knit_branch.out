@@ -1,0 +1,5 @@
+multigrain 1.0.0.9001 
+knitted without an unexpected error: TRUE
+errors shown (chunks marked error: true): 2 
+compile messages printed: 0 
+EXPECTED: no compile messages, since the article sets options(multigrain_verbosity = "silent")

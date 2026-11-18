@@ -1,0 +1,15 @@
+                                   constraint groups valid_parents calls
+                                  free, m = 3      4            50  3333
+                                  free, m = 6      7            50  3333
+                                weights fixed      3            50  3333
+                      one weight fixed at 0.4      5            50  3333
+ a row fully fixed, a row with one free entry      3            50  3333
+                fixed edges of 0.001 and 1e-4      2            50  3333
+ out_of_range invalid_graph fixed_changed child_equals_parent outside_changed
+            0             0             0                   0               0
+            0             0             0                   0               0
+            0             0             0                   0               0
+            0             0             0                   0               0
+            0             0             0                   0               0
+            0             0             0                   0               0
+EXPECTED: 50 valid parents and 0 in every count column after calls

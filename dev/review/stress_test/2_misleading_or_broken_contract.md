@@ -2,9 +2,9 @@
 
 The package does something other than what a careful user would take from the help, in a use that is easy to arrive at.
 
-14 entries. Back to the [index](README.md).
+16 entries. Back to the [index](README.md).
 
-Contents: [B1](#B1), [B2](#B2), [B3_power](#B3_power), [B3_simulators](#B3_simulators), [B4](#B4), [B5](#B5), [B6](#B6), [B7](#B7), [B9](#B9), [ENV02](#ENV02), [ENV03_power](#ENV03_power), [ENV03_spending](#ENV03_spending), [ENV04](#ENV04), [MEM1](#MEM1)
+Contents: [B1](#B1), [B2](#B2), [B3_power](#B3_power), [B3_simulators](#B3_simulators), [B4](#B4), [B5](#B5), [B6](#B6), [B7](#B7), [B9](#B9), [ENV02](#ENV02), [ENV03_power](#ENV03_power), [ENV03_spending](#ENV03_spending), [ENV04](#ENV04), [MEM1](#MEM1), [HS1](#HS1), [HS2](#HS2)
 
 ---
 
@@ -50,7 +50,7 @@ cat("result without start_graph: weights", round(unname(b$hyp_weight), 3), "gain
 cat("EXPECTED: with start_graph the search starts at 0.6 0.35 0.8 0.7 0.9, the suggested graph\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 gain of the suggested start graph: 1.62
@@ -127,7 +127,7 @@ cat("returned G[1, 4]     :", res$trans_matrix[1, 4], "\n")
 cat("EXPECTED: returned G[1, 4] equal to the fixed value 1e-04\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 solution taken from the global search
@@ -165,7 +165,7 @@ The two objective closures get the same mask on their two lines. With this chang
 
 **What the error is.** `calc_power_pvals()` passes its p-value matrix and its level to the kernel unchecked. A missing p-value counts as "not rejected" with no message: with 600 of 2,000 p-values of H2 set to `NA`, the local power of H2 falls from 0.754 to 0.530 and the other two move as well. A p-value of -1 is rejected for a hypothesis whose weight is 0, and `alpha = 40` is accepted and gives local power 1, 1, 1. `graph_optimise()` refuses that alpha but optimises on the same p-values. In practice the bad values come from upstream: `simulate_pvalues(c(0.9, 80, 0.7))` returns a column of `NaN`, which is then reported as a power of 0 for H2.
 
-**What causes it.** The only checks are `check_double_matrix(pvals)` and `rlang::check_number_decimal(alpha, min = 0)` (`R/calc_power.R:124-128`). The kernel tests `cur_p[i] < cur_a[i]` (`src/graph_shortcut.cpp:110`), which is false for `NA` and `NaN` and true for a negative p-value at any level, a level of 0 included. `graph_optimise()` checks `pvals` for its type only (`R/optimisation.R:112`). The group sequential functions validate both (`R/check_gsd.R:137-158, 199-231`).
+**What causes it.** The only checks are `check_double_matrix(pvals)` and `rlang::check_number_decimal(alpha, min = 0)` (`R/calc_power.R:133-137`). The kernel tests `cur_p[i] < cur_a[i]` (`src/graph_shortcut.cpp:269`; the table kernel's `cur_p[i] < row[i]` at `:512` is the same test), which is false for `NA` and `NaN` and true for a negative p-value at any level, a level of 0 included. `graph_optimise()` checks `pvals` for its type only (`R/optimisation.R:112`). The group sequential functions validate both (`R/check_gsd.R:137-158, 199-231`).
 
 **Code showing the problem** ([`reprex/B3_power.R`](reprex/B3_power.R)):
 
@@ -193,7 +193,7 @@ cat("local power at alpha = 40:           ", calc_power_pvals(pvals, w, G, alpha
 cat("EXPECTED: an error for each of the last three calls, as calc_power_pvals_gsd() gives\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 local power, complete p-values:       0.857 0.754 0.648
@@ -261,7 +261,7 @@ cat("EXPECTED: an error that names nsim, and an error that names the second",
     "element of power_nominal\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 simulate_pvalues(nsim = 0) says: non-conformable arguments
@@ -342,7 +342,7 @@ cat("EXPECTED: an error for both matrices; otherwise 0.025 for each true null",
     "and 0.9 for each power\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 smallest eigenvalue: -0.224
@@ -417,7 +417,7 @@ cat("system() in a string objective ran", length(readLines("B5_marker.txt")),
 cat("EXPECTED: both strings refused, as the same text typed as an expression is\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 abs(r1 - 0.5) + r2 on the four rejection patterns
@@ -493,7 +493,7 @@ cat("returned weights:", round(unname(res$hyp_weight), 3), " source:", res$solut
 cat("EXPECTED: a returned gain of at least", start_gain, "\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 gain of the default start graph on all rows: 1.6652
@@ -539,7 +539,7 @@ With this change the script returns equal weights with `opt_source` equal to `"s
 
 **What the error is.** Round 1 finding B7 and round 2 finding MEM2 are one defect; MEM2 located the threshold. `graph_optimise(num_threads = 65537)` ends the R session with a segmentation fault at its first parallel evaluation, while 65,536 runs normally; the group sequential kernel crashes at 65,537 too. Nothing is gained from such a request: on the 2-core test machine a call with 2, 64 or 65,536 threads ran with the same 2 or 3 operating system threads. A value of 2^31 or more is refused with "num_threads must be >= 1", which points the wrong way. Someone who types a large number to mean "all cores" loses the session and everything in it.
 
-**What causes it.** `graph_optimise()` requires a whole number of at least 1 (`R/optimisation.R:133`), and the kernels refuse only `num_threads < 1` (`src/graph_shortcut.cpp:311-312`, `src/graph_shortcut_gsd.cpp:472-473`) before passing the value to `RcppParallel::parallelFor()` (`src/graph_shortcut.cpp:362-363`, `src/graph_shortcut_gsd.cpp:528-529`). A debugger backtrace of the crash ends in TBB's `arena::free_arena()`, reached from the destructor of the `task_arena` that `parallelFor()` creates with the requested size. A value of 2^31 or more becomes `NA_integer_` when converted to `int`; that is the smallest `int`, so the `< 1` test answers.
+**What causes it.** `graph_optimise()` requires a whole number of at least 1 (`R/optimisation.R:133`), and the kernels refuse only `num_threads < 1` (`src/graph_shortcut.cpp:679-680`, `src/graph_shortcut_gsd.cpp:472-473`) before passing the value to `RcppParallel::parallelFor()` (`src/graph_shortcut.cpp:703-704` and `:729-730`, `src/graph_shortcut_gsd.cpp:528-529`). A debugger backtrace of the crash ends in TBB's `arena::free_arena()`, reached from the destructor of the `task_arena` that `parallelFor()` creates with the requested size. A value of 2^31 or more becomes `NA_integer_` when converted to `int`; that is the smallest `int`, so the `< 1` test answers.
 
 **Code showing the problem** ([`reprex/B7.R`](reprex/B7.R)):
 
@@ -571,7 +571,7 @@ cat("num_threads = 65537: child exit status", run(65537L), "(139 = segmentation 
 cat("EXPECTED: exit status 0 for both, with the request capped at the number of cores, or an R error\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 cores on this machine: 2
@@ -609,7 +609,7 @@ With this change both child processes of the script exit with status 0. A reques
 
 **What the error is.** After `saveRDS()` and `readRDS()` a gain still prints its objective, and every use of it stops with "NULL value passed as symbol address" (round 1 B9). An optimisation result carries its gain, so a saved result cannot be scored on fresh p-values; the result shipped as `graph_optimal_example` is in that state. Round 2 (ENV06) found the same after `load()`, in a socket worker, and for a gain returned from a forked child. The message does not say that the gain must be built again.
 
-**What causes it.** `$func` is the R wrapper that `Rcpp::sourceCpp()` creates (`R/trial_success.R:314, 324`; `R/trial_success_gsd.R:716, 726`). It holds a pointer into a shared library of the building process, and R serialises such a pointer as `NULL`. The object also keeps the C++ source it was built from (`cpp_code`, `R/trial_success.R:327` and `R/trial_success_gsd.R:730`), but nothing uses it: the consumers call `$func` directly (`R/calc_power.R:248`, `R/optimisation.R:315`).
+**What causes it.** `$func` is the R wrapper that `Rcpp::sourceCpp()` creates (`R/trial_success.R:314, 324`; `R/trial_success_gsd.R:716, 726`). It holds a pointer into a shared library of the building process, and R serialises such a pointer as `NULL`. The object also keeps the C++ source it was built from (`cpp_code`, `R/trial_success.R:327` and `R/trial_success_gsd.R:730`), but nothing uses it: the consumers call `$func` directly (`R/calc_power.R:257`, `R/optimisation.R:315`).
 
 **Code showing the problem** ([`reprex/B9.R`](reprex/B9.R)):
 
@@ -638,7 +638,7 @@ cat("C++ source still held by the reloaded object:", nchar(g_reloaded$cpp_code),
 cat("EXPECTED: the same value after reloading, or a message saying how to rebuild the gain\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 gain before saving  : 1.2748
@@ -708,13 +708,13 @@ cat("(a race between the workers: the count varies from run to run)\n")
 cat("EXPECTED: 0 of 8 failed and the values 1.5 2.5 3.5 4.5 5.5 6.5 7.5 8.5\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 workers that failed: 3 of 8
   Error in load(file = token_file) : empty (zero-byte) input file
   Error in load(file = index_file) : empty (zero-byte) input file
-values from the others: 1.5 2.5 3.5 4.5 8.5
+values from the others: 1.5 2.5 4.5 6.5 7.5
 (a race between the workers: the count varies from run to run)
 EXPECTED: 0 of 8 failed and the values 1.5 2.5 3.5 4.5 5.5 6.5 7.5 8.5
 ```
@@ -752,7 +752,7 @@ With this change the script reports 0 of 8 failed and all eight values, 1.5 to 8
 
 **What the error is.** Names on `hyp_weight`, on the rows and columns of `trans_matrix` and on the columns of `pvals` are never compared: everything is matched by position. In the script the p-value columns are OS, PFS, ORR, and the graph is written, consistently, in the order ORR, OS, PFS. ORR's weight and edges are applied to the OS p-values, and the local power comes back as 0.823, 0.767, 0.650 where the graph as named gives 0.876, 0.760, 0.630. There is no message, and the numbers are plausible. A matrix reordered without its weights is accepted in the same way by `is_graph_valid()` and `calc_power_pvals_gsd()`, and `graph_optimise()` returns weights that carry the names of a constraint written in another order than the p-value columns.
 
-**What causes it.** No function compares the names. `calc_power_pvals()` hands `hyp_weight` and `trans_matrix` to the kernel as they come (`R/calc_power.R:147-152`), as does `calc_power_pvals_gsd()` (`R/calc_power_gsd.R:220-226`), and `is_graph_valid()` checks dimensions and values only (`R/utils.R:128-198`). The kernel indexes by position.
+**What causes it.** No function compares the names. `calc_power_pvals()` hands `hyp_weight` and `trans_matrix` to the kernel as they come (`R/calc_power.R:156-161`), as does `calc_power_pvals_gsd()` (`R/calc_power_gsd.R:220-226`), and `is_graph_valid()` checks dimensions and values only (`R/utils.R:128-198`). The kernel indexes by position.
 
 **Code showing the problem** ([`reprex/ENV03_power.R`](reprex/ENV03_power.R)):
 
@@ -778,7 +778,7 @@ cat("graph written as ORR, OS, PFS:  ", calc_power_pvals(pvals, w[ord], G[ord, o
 cat("EXPECTED: the first line of numbers again (matched by name), or an error that the names disagree\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 columns of pvals:                OS PFS ORR
@@ -849,7 +849,7 @@ cat("EXPECTED: 0.00153 0.00153 0.0155 (matched by name), or an error that the na
     "are in another order\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
  hypothesis analyses matured_at look_back spending
@@ -924,7 +924,7 @@ for (seed in 1:3) {
 cat("EXPECTED: three identical lines, and .Random.seed unchanged\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 set.seed(1): weights 0.5916 0.4084 0.0000  gain 0.924067  .Random.seed changed
@@ -957,27 +957,30 @@ pvals_sampled <- .sample_pvals_rows(pvals, nsim, seed = global_opts[["seed"]])
 ---
 
 <a name="MEM1"></a>
-## MEM1. The serial kernels compute matrix offsets in 32-bit integers, which overflow above 2^31 p-values
+## MEM1. The serial group sequential kernel computes matrix offsets in 32-bit integers, which overflow above 2^31 p-values
 
-- Functions: calc_power_pvals(), calc_power_pvals_gsd(), graph_optimise() and graph_optimise_gsd() with num_threads = 1
-- Branches: main and gsd-build (the group sequential kernel on gsd-build only)
-- Potential fix: tested (patch 7)
+- Functions: calc_power_pvals_gsd() and graph_optimise_gsd() with num_threads = 1; in multigrain 1.0.0 on CRAN also calc_power_pvals() and graph_optimise()
+- Branches: gsd-build-spending (the group sequential kernel); gsd-build (both kernels, as it has not merged `main` again). The fixed-sample kernel was fixed on `main` by the fast shortcut (PR #48), which `gsd-build-spending` merged on 4 November; CRAN 1.0.0 predates it
+- Potential fix: tested (patch 7; only its group sequential half is still needed)
 
-**What the error is.** The two serial kernels compute the position of a p-value in its matrix as `set + i * N` in `int`. Once the matrix has more than 2^31 - 1 elements, for example 1e8 trials of 22 hypotheses (17.6 GB), the sum overflows: for the last p-value the offset 2,199,999,999 becomes -2,094,967,297 under the usual wrap-around, and the kernel would read in front of the p-value matrix and write in front of its output. This was found by reading and not run, since it needs more memory than the 7 GB test machine has; the script prints the declarations and does the arithmetic. The parallel kernels are not affected: they index through `RMatrix`, whose offsets are `std::size_t`.
+**What the error is.** The serial group sequential kernel computes the position of a p-value in its matrix as `set + i * N` in `int`. Once the matrix has more than 2^31 - 1 elements, for example 1e8 trials of 22 hypotheses (17.6 GB), the sum overflows: for the last p-value the offset 2,199,999,999 becomes -2,094,967,297 under the usual wrap-around, and the kernel would read in front of the p-value matrix and write in front of its output. This was found by reading and not run, since it needs about 17.6 GB; the script prints the declarations and does the arithmetic. The parallel kernels are not affected: the group sequential one indexes through `RMatrix`, whose offsets are `std::size_t`, and the fixed-sample one forms its offsets in `std::size_t`. The serial fixed-sample kernel had the same defect until the fast shortcut was merged: since then both of its paths form offsets in `std::size_t`. Multigrain 1.0.0 on CRAN still has the fixed-sample version (`src/graph_shortcut.cpp:66, 94, 101, 112` there), and so does `gsd-build` (`8af8adb`, lines 66 and 304 for `const int N`).
 
-**What causes it.** `const int N = pvals.nrow();` and `for (int set = 0; set < N; ++set)` (`src/graph_shortcut.cpp:66, 94`; `src/graph_shortcut_gsd.cpp:119, 164`). The read at `src/graph_shortcut.cpp:101` and the write at `:112`, and in the group sequential kernel the read at `src/graph_shortcut_gsd.cpp:178` and the writes at `:188-189`, therefore form their offsets in `int`. Signed overflow is undefined behaviour in C++.
+**What causes it.** `const int N  = pvals.nrow();` and `for (int set = 0; set < N; ++set)` (`src/graph_shortcut_gsd.cpp:119, 164`). The read at `src/graph_shortcut_gsd.cpp:178` and the writes at `:188-189` therefore form their offsets in `int`. Signed overflow is undefined behaviour in C++. In the fixed-sample kernel, `sequential_trial()` and `walk_crit_table()` now take `N` and `set` as `std::size_t` (`src/graph_shortcut.cpp:246-248, 492, 500`); `graph_shortcut()` still declares `const int N` (`:588`) but casts it before any offset is formed.
 
 **Code showing the problem** ([`reprex/MEM1.R`](reprex/MEM1.R)):
 
 ```r
-# MEM1: the serial kernels compute matrix offsets in 32-bit integers
-# Run from the repository root: Rscript MEM1.R   (reads src/graph_shortcut.cpp; allocates nothing)
+# MEM1: the serial group sequential kernel computes matrix offsets in 32-bit integers
+# Run from the repository root: Rscript MEM1.R   (reads src/graph_shortcut_gsd.cpp and src/graph_shortcut.cpp; allocates nothing)
 # fmt: skip file
-src <- trimws(readLines("src/graph_shortcut.cpp"))
-cat("in graph_shortcut(), the serial fixed-sample kernel:\n")
-for (pattern in c("N = pvals.nrow()", "; set < ", "p_ptr[set", "h_ptr[set")) {
+src <- trimws(readLines("src/graph_shortcut_gsd.cpp"))
+cat("in graph_shortcut_gsd(), the serial group sequential kernel:\n")
+for (pattern in c("N  = pvals.nrow()", "; set < N", "p_ptr[set", "h_ptr[set")) {
     cat("   ", grep(pattern, src, fixed = TRUE, value = TRUE)[1], "\n")
 }
+fs <- trimws(readLines("src/graph_shortcut.cpp"))
+cat("the fixed-sample kernel, for comparison (64 bits since the fast shortcut):\n")
+cat("   ", grep("const std::size_t set, SequentialScratch", fs, fixed = TRUE, value = TRUE)[1], "\n")
 
 n_trials <- 1e8                           # 1e8 trials of 22 hypotheses: 2.2e9 p-values, 17.6 GB
 n_hyp <- 22
@@ -988,20 +991,22 @@ cat("the same sum in a 32-bit integer:", format(as_int, big.mark = ",", scientif
 cat("EXPECTED: `N` and `set` declared as R_xlen_t (64 bits), so that the offset cannot overflow\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
-in graph_shortcut(), the serial fixed-sample kernel:
-    const int N = pvals.nrow();
+in graph_shortcut_gsd(), the serial group sequential kernel:
+    const int N  = pvals.nrow();
     for (int set = 0; set < N; ++set) {
-    cur_p[i] = p_ptr[set + i * N];
-    h_ptr[set + i * N] = 1;   // TRUE in R's logical representation
+    cur_p[i] = p_ptr[set + (offset + i) * N];
+    h_ptr[set + i * N]   = 1;       // TRUE in R's logical representation
+the fixed-sample kernel, for comparison (64 bits since the fast shortcut):
+    const std::size_t set, SequentialScratch& s) {
 offset of the last p-value:       2,199,999,999
 the same sum in a 32-bit integer: -2,094,967,297
 EXPECTED: `N` and `set` declared as R_xlen_t (64 bits), so that the offset cannot overflow
 ```
 
-**Potential fix.** Declare the row count and the trial index as `R_xlen_t` in the two serial functions, and build the outputs from `pvals.nrow()` so that nothing is narrowed:
+**Potential fix.** Declare the row count and the trial index as `R_xlen_t` in the serial group sequential kernel, and build the outputs from `pvals.nrow()` so that nothing is narrowed. Shown here as patch 7 wrote it for `graph_shortcut()`, which no longer needs it:
 
 ```diff
 -  const int N = pvals.nrow();
@@ -1015,4 +1020,107 @@ EXPECTED: `N` and `set` declared as R_xlen_t (64 bits), so that the offset canno
 +  for (R_xlen_t set = 0; set < N; ++set) {
 ```
 
-The same three changes go into `graph_shortcut_gsd()`. Run from the fixed tree, the script prints the `R_xlen_t` declarations; the loop line reads `set = block; set < block_end` there, since patch 12 (MEM3) runs the loop in blocks. No test in the series allocates a matrix above the limit, so the overflow itself remains unexercised. Below the limit, 160 kernel outputs on 40 random graphs were identical on the two builds.
+The same three changes go into `graph_shortcut_gsd()`. Patch 7 was written on `ee91a11`, before the fast shortcut rewrote `src/graph_shortcut.cpp`, so its fixed-sample half no longer applies and its group sequential half needs rebasing. On that build the script (in its earlier form, which read `src/graph_shortcut.cpp`) printed the `R_xlen_t` declarations. No test in the series allocates a matrix above the limit, so the overflow itself remains unexercised. Below the limit, 160 kernel outputs on 40 random graphs were identical on the two builds.
+
+---
+
+<a name="HS1"></a>
+## HS1. When the genetic algorithm's graph is kept, print() and summary() describe the local search's design
+
+- Functions: graph_optimise_gsd() with a spending spec; print() and summary() of its result
+- Branches: gsd-build-spending only
+- Potential fix: a note in print() tested on an earlier state of the branch (`e45ee1f`, 15 October 2026) in a scratch build, not retested here; the full fix suggested
+
+**What the error is.** `graph_optimise_gsd()` keeps the better of two candidates: the genetic algorithm's (stage G) and the local search's (stage L). If stage G wins, its spending value and graph are reported. The profile (`spending_profile`, and the table in `summary()`) still comes from stage L: its `diff` column is measured from stage L's optimum, and each row holds stage L's graph. `print()` centres the two plateaus on the reported value but measures both from stage L's profile. In the script (`control_nsim_local(300)` on 5,000 trials), stage G's design is kept at gamma = -2. The profile row there has `diff` = 0.015, and the profile's own optimum is at -0.5. Even so, `print()` says the gain is "within 5e-4 of the maximum on [-2, -2]". The help page says the profile stays the local stage's when the genetic algorithm's graph is kept, and also that "at the chosen value ... `diff` and `se` are 0", which is then false. With the default control this was not seen: stage L sees the full sample and starts from stage G's graph. On 15 October, with the same small local sample over 12 seeds, stage G's design was kept in 11 runs and the `diff` at the reported value was not 0 in 9.
+
+**What causes it.** `R/optimisation_gsd_opt.R:157-162` takes `theta_star` from stage G when `choose_graph()` returns `"global"`; line 236 stores stage L's profile unchanged; lines 1089-1095 centre the plateau on the reported value, and `.hsd_plateau()` (lines 1037-1052) never checks that the `diff` at that value is within the tolerance. The help text is at `R/optimisation_gsd.R:57-58` and `:67-69` (`man/graph_optimise_gsd.Rd:194-195, 204-206`).
+
+**Code showing the problem** ([`reprex/HS1.R`](reprex/HS1.R)) (about 20 s):
+
+```r
+# HS1: when the genetic algorithm's graph is kept, print() and summary() describe the local search's design
+# Run: Rscript HS1.R   (about 20 s; needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain.verbosity = "silent")
+corr <- matrix(c(1, 0.5, 0.5, 1), 2)
+set.seed(1)
+raw  <- simulate_pvalues_gsd(power_nominal = c(0.9, 0.8), corr_matrix = corr, info_frac = c(0.5, 1), nsim = 5000)
+spec <- transform_pvalues_gsd(raw, spending = list(gsDesign::sfLDOF, sf_hsd_opt(bounds = c(-4, 1), step = 0.5)), grid_size = 128L)
+gain <- trial_success_gsd(r1 * d(t1) + r2 * d(t2), d = c(1, 0.75))
+res  <- graph_optimise_gsd(pvals = spec, graph_constraint = graph_constraint_free(2), trial_success = gain,
+                           control = control_nsim_local(multigrain_control(), 300), num_threads = 2)
+prof <- res$spending_profile
+cat("solution source:", res$solution$opt_source, "\n")
+cat("reported gamma:", res$spending_param, "\n")
+cat("profile row at the reported gamma: diff =", prof$diff[prof$value == res$spending_param], "\n")
+cat("profile row with diff 0 (the profile's own optimum): gamma =", prof$value[prof$diff == 0], "\n")
+cat(grep("within 5e-4", capture.output(print(res)), value = TRUE), sep = "\n")
+cat("EXPECTED: diff 0 at the reported gamma, or a note that the profile and its plateaus come from another design\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+solution source: global
+reported gamma: -2
+profile row at the reported gamma: diff = 0.015
+profile row with diff 0 (the profile's own optimum): gamma = -0.5
+  within 5e-4 of the maximum on [-2, -2]; fixed-graph plateau [-2, -2]
+EXPECTED: diff 0 at the reported gamma, or a note that the profile and its plateaus come from another design
+```
+
+**Potential fix.** Tested on `e45ee1f` (print only): `print()` adds a line whenever stage G's design was kept, "the genetic algorithm's design was kept; the profile and its plateaus come from the local search, not from the reported design". Suggested (full fix): when stage G wins, recompute the profile from stage G's graph and value on the pinned rows, as the final pass of `.hsd_profile()` does for a stale axis. Then `diff` is 0 at the reported value and the plateaus describe the reported design.
+
+---
+
+<a name="HS2"></a>
+## HS2. The plateau tolerance is a fixed 5e-4 in gain units, whatever the gain's scale or the simulation error
+
+- Functions: print() of a joint spending result; the article gsd-joint-spending
+- Branches: gsd-build-spending only
+- Potential fix: suggested, not implemented
+
+**What the error is.** The plateau is the run of lattice values whose gain is within 5e-4 of the best. The 5e-4 is absolute: it ignores the scale of the gain and the simulation error. Multiplying the same gain by 100 or by 0.01 leaves the best design mathematically the same, but the plateau changes completely: in the script, [-2, -1] at scale 1, [-1.5, -1.5] at scale 100 and the whole lattice at scale 0.01. On 20,000 trials 5e-4 is 0.4 standard errors of the differences at scale 1, 0.004 at scale 100 and 37 at scale 0.01. A gain measured in patients, years or money makes the printed plateau meaningless. The article says that inside the plateau "the differences are a few standard errors at most"; that holds for its example only.
+
+**What causes it.** `tol = 5e-4` is hard-coded in `.hsd_plateau()` (`R/optimisation_gsd_opt.R:1037`) and in the printed text (line 1114). The article's helper copies it (`vignettes/articles/gsd-joint-spending.Rmd:39`); the sentence quoted is at lines 371-372.
+
+**Code showing the problem** ([`reprex/HS2.R`](reprex/HS2.R)) (about 3 minutes):
+
+```r
+# HS2: the plateau tolerance is a fixed 5e-4 in gain units, whatever the gain's scale or the simulation error
+# Run: Rscript HS2.R   (about 3 minutes; needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain.verbosity = "silent")
+corr <- matrix(c(1, 0.5, 0.5, 1), 2)
+set.seed(2)
+raw  <- simulate_pvalues_gsd(power_nominal = c(0.9, 0.8), corr_matrix = corr, info_frac = c(0.5, 1), nsim = 20000)
+spec <- transform_pvalues_gsd(raw, spending = list(gsDesign::sfLDOF, sf_hsd_opt(bounds = c(-4, 1), step = 0.5)), grid_size = 128L)
+gains <- list("x 1"    = trial_success_gsd(r1 * d(t1) + r2 * d(t2), d = c(1, 0.75)),
+              "x 100"  = trial_success_gsd(100 * r1 * d(t1) + 100 * r2 * d(t2), d = c(1, 0.75)),
+              "x 0.01" = trial_success_gsd(0.01 * r1 * d(t1) + 0.01 * r2 * d(t2), d = c(1, 0.75)))
+for (k in names(gains)) {
+    set.seed(7)
+    res <- graph_optimise_gsd(pvals = spec, graph_constraint = graph_constraint_free(2), trial_success = gains[[k]], num_threads = 2)
+    se  <- res$spending_profile$se
+    cat(sprintf("gain %-6s gamma* %-4s|%s\n", k, res$spending_param,
+                sub("^ +", " ", grep("within 5e-4", capture.output(print(res)), value = TRUE))))
+    cat(sprintf("             5e-4 is %.3g times the median standard error of the differences\n", 5e-4 / median(se[se > 0])))
+}
+cat("EXPECTED: the same plateau at every scale, for example the run of values with diff <= 2 * se\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+gain x 1    gamma* -1.5| within 5e-4 of the maximum on [-2, -1]; fixed-graph plateau [-1.5, -1]
+             5e-4 is 0.403 times the median standard error of the differences
+gain x 100  gamma* -1.5| within 5e-4 of the maximum on [-1.5, -1.5]; fixed-graph plateau [-1.5, -1.5]
+             5e-4 is 0.00403 times the median standard error of the differences
+gain x 0.01 gamma* -1.5| within 5e-4 of the maximum on [-4, 1]; fixed-graph plateau [-4, 1]
+             5e-4 is 36.9 times the median standard error of the differences
+EXPECTED: the same plateau at every scale, for example the run of values with diff <= 2 * se
+```
+
+**Potential fix.** Define the plateau from the paired standard errors that the profile already holds, for example the run of nodes with `diff <= 2 * se`. Alternatively, give `print()` a `tol` argument and state its units. Either way, print the tolerance used in standard errors as well as in gain units.

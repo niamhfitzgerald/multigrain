@@ -2,9 +2,9 @@
 
 Nothing here changes a number a user computes with the package's functions. DOC1 is the exception to keep in mind: the article it concerns leads a reader to a different design from the one described.
 
-26 entries. Back to the [index](README.md).
+33 entries. Back to the [index](README.md).
 
-Contents: [MEM4](#MEM4), [D_ggplot2_optional](#D_ggplot2_optional), [D_global_output](#D_global_output), [D_graphics_undeclared](#D_graphics_undeclared), [D_local_weights](#D_local_weights), [D_plot_rounding](#D_plot_rounding), [D_power_nominal](#D_power_nominal), [DOC1](#DOC1), [DOC2](#DOC2), [DOC4](#DOC4), [DOC6](#DOC6), [DOC7](#DOC7), [DOC8](#DOC8), [DOC9](#DOC9), [DOC10](#DOC10), [DOC11](#DOC11), [DOC13](#DOC13), [DOC15](#DOC15), [DOC16](#DOC16), [DOC17a](#DOC17a), [DOC17h](#DOC17h), [DOC18](#DOC18), [DOC19](#DOC19), [UT4](#UT4), [UT5](#UT5), [UT6](#UT6)
+Contents: [MEM4](#MEM4), [D_ggplot2_optional](#D_ggplot2_optional), [D_global_output](#D_global_output), [D_graphics_undeclared](#D_graphics_undeclared), [D_local_weights](#D_local_weights), [D_plot_rounding](#D_plot_rounding), [D_power_nominal](#D_power_nominal), [DOC1](#DOC1), [DOC2](#DOC2), [DOC4](#DOC4), [DOC6](#DOC6), [DOC7](#DOC7), [DOC8](#DOC8), [DOC9](#DOC9), [DOC10](#DOC10), [DOC11](#DOC11), [DOC13](#DOC13), [DOC15](#DOC15), [DOC16](#DOC16), [DOC17a](#DOC17a), [DOC17h](#DOC17h), [DOC18](#DOC18), [DOC19](#DOC19), [UT4](#UT4), [UT5](#UT5), [UT6](#UT6), [ENV08](#ENV08), [HS4](#HS4), [HS5](#HS5), [HS7](#HS7), [HS8](#HS8), [HS9](#HS9), [HS10](#HS10)
 
 ---
 
@@ -17,7 +17,7 @@ Contents: [MEM4](#MEM4), [D_ggplot2_optional](#D_ggplot2_optional), [D_global_ou
 
 **What the error is.** Two pieces of undefined behaviour that no exported function reaches today. First, `graph_violation_score_cpp(w, G)` reads `G(i, j)` for every `i` and `j` below `length(w)` without looking at the size of `G`: with 20 weights and a 5 x 5 matrix it returns a score and no error, 5 in some sessions here and 5.24e+284 in others, since the number comes from the memory behind the matrix. Nothing in `R/` calls this function; the tests do. Second, the parallel kernels choose their grain size by dividing 100,000 by `m^3`, which with zero hypotheses is a division by zero whose infinite result is converted to an unsigned integer; a direct call returned a 5 x 0 matrix here, so nothing is visible on this platform. Both are traps for later code, not for today's user.
 
-**What causes it.** `src/optimization-helpers.cpp:18-39`: `m` is taken from `w.size()` alone, and `G(i, j)` is unchecked Rcpp indexing. `src/graph_shortcut.cpp:332-338` and `src/graph_shortcut_gsd.cpp:493-499`: `static_cast<std::size_t>(TARGET_OPS / ops_per_row)` with `ops_per_row` equal to `m * m * m` (times `K` in the group sequential kernel). `calc_power_pvals()` refuses a design without hypotheses, and `graph_constraint_free()` needs at least 2.
+**What causes it.** `src/optimization-helpers.cpp:18-39`: `m` is taken from `w.size()` alone, and `G(i, j)` is unchecked Rcpp indexing. `src/graph_shortcut.cpp:189-199` (`choose_grain_size()`, called at `:691-693` and `:721-723`) and `src/graph_shortcut_gsd.cpp:493-499`: `static_cast<std::size_t>(target_ops / ops_per_row)` (`TARGET_OPS` in the group sequential kernel) with `ops_per_row` equal to `m * m * m` (`m * m` for the table kernel; times `K` in the group sequential kernel). `calc_power_pvals()` refuses a design without hypotheses, and `graph_constraint_free()` needs at least 2.
 
 **Code showing the problem** ([`reprex/MEM4.R`](reprex/MEM4.R)):
 
@@ -39,7 +39,7 @@ cat("score with a 20 x 20 matrix:  ", multigrain:::graph_violation_score_cpp(w, 
 cat("EXPECTED: an error for the 5 x 5 matrix, which is too small for 20 weights\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 score with the 5 x 5 matrix:   5
@@ -72,7 +72,7 @@ With this change the script prints that error message for the 5 x 5 matrix. For 
 
 **What the error is.** The help pages of the two plot methods say: "Both `plot()` and `autoplot()` methods require an optional dependency, ggplot2." ggplot2 is not optional. It is listed under Imports, the namespace imports `autoplot` from it, and the methods call `ggplot2::` functions directly, so it is installed with multigrain and multigrain cannot be loaded without it. A reader is led to think that plotting needs a separate installation. What the user does have to do goes unsaid: `plot()` works at once, but `autoplot()` stops with "could not find function "autoplot"" until ggplot2 is attached, since multigrain does not re-export the generic. The examples attach it without comment.
 
-**What causes it.** The sentence is in the roxygen blocks of both methods: `R/plot_graph_optimal.R:4-5` and `R/plot_graph_constraint.R:4-5`. It contradicts `DESCRIPTION:31` (ggplot2 under Imports) and `NAMESPACE:53` (`importFrom(ggplot2,autoplot)`, from `R/multigrain-package.R:8`). All of these lines date from the first public commit `1c028a7`.
+**What causes it.** The sentence is in the roxygen blocks of both methods: `R/plot_graph_optimal.R:4-5` and `R/plot_graph_constraint.R:4-5`. It contradicts `DESCRIPTION:32` (ggplot2 under Imports) and `NAMESPACE:53` (`importFrom(ggplot2,autoplot)`, from `R/multigrain-package.R:8`). All of these lines date from the first public commit `1c028a7`.
 
 **Code showing the problem** ([`reprex/D_ggplot2_optional.R`](reprex/D_ggplot2_optional.R)):
 
@@ -102,7 +102,7 @@ cat("EXPECTED: the help does not call a hard dependency optional, and says that\
 cat("          autoplot() needs library(ggplot2)\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 help page says: Both ‘plot()’ and ‘autoplot()’ methods require an optional dependency, ggplot2.
@@ -165,7 +165,7 @@ cat("print(res$global_output):", msg, "\n")
 cat("EXPECTED: a valid `ga` object that prints\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 class: ga   has its `call` slot: FALSE
@@ -199,7 +199,7 @@ With this change the script reports that the slot is present and that the object
 
 **What the error is.** `NAMESPACE` imports from five packages: Rcpp, RcppParallel, ggplot2, rlang and graphics. The first four are declared in `DESCRIPTION`; graphics is not, although the base packages stats and utils are listed under Imports. Nothing fails for a user: graphics is part of every R installation, and R's own dependency check (`tools:::.check_package_depends()`, the one `R CMD check` runs) reports nothing for this tree. It is an inconsistency in the package metadata and nothing more.
 
-**What causes it.** `R/multigrain-package.R:9` has `#' @importFrom graphics plot`, which roxygen writes to `NAMESPACE:54`. The matching entry in `DESCRIPTION:27-47` was never added. The import is also no longer needed for its purpose: since R 4.0.0 the `plot()` generic lives in base (R's NEWS for 4.0.0; the script prints `base` as its home in the R used here), and the package requires R 4.1.0 or later, so the two `S3method(plot, ...)` registrations find the generic without it. The line dates from the first public commit `1c028a7`.
+**What causes it.** `R/multigrain-package.R:9` has `#' @importFrom graphics plot`, which roxygen writes to `NAMESPACE:54`. The matching entry in `DESCRIPTION:28-48` was never added. The import is also no longer needed for its purpose: since R 4.0.0 the `plot()` generic lives in base (R's NEWS for 4.0.0; the script prints `base` as its home in the R used here), and the package requires R 4.1.0 or later, so the two `S3method(plot, ...)` registrations find the generic without it. The line dates from the first public commit `1c028a7`.
 
 **Code showing the problem** ([`reprex/D_graphics_undeclared.R`](reprex/D_graphics_undeclared.R)):
 
@@ -221,7 +221,7 @@ cat("where the plot() generic lives in this R:", environmentName(environment(plo
 cat("EXPECTED: every namespace in NAMESPACE is under Imports, as stats and utils are\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 namespaces the package imports from: ggplot2, graphics, Rcpp, RcppParallel, rlang
@@ -284,7 +284,7 @@ cat("child process with zero hypotheses: exit status", status, "(139 = segmentat
 cat("EXPECTED: an R error from both calls\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 3 weights with a 2 x 2 matrix: no error
@@ -342,7 +342,7 @@ cat("labels drawn in the nodes H1 (0.004) and H2 (0.996):", nodes[1], "|", nodes
 cat("EXPECTED: labels that tell 0.001 from 0 and 0.999 from 1, for example <0.01 and >0.99\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 label drawn on the edge H1 -> H2 (value 0.001): 0
@@ -405,7 +405,7 @@ cat("EXPECTED: help that says 0.9 is the power at an information fraction of 1",
     "(0.83 at this final analysis)\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 ?simulate_pvalues_gsd says:
@@ -471,7 +471,7 @@ cat("measure behind the results on the page    :", g$trial_success$objective, "\
 cat("EXPECTED: text, formula, code and stored results use one measure (0.75 for this trial if it is 'at least one')\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 article text : - Success for rejecting at least one of the two primary dose-control comparisons $H_1$ or $H_2$ (but no extra credit for rejecting both)
@@ -532,7 +532,7 @@ cat("EXPECTED: the four power lines under 'Power metrics', the gain, the constra
 cat("          as summary(graph_optimal_example) and graph_optimal_get_control(graph_optimal_example) give\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 fields, article object : hyp_weight trans_matrix constraints trial_success power opt_settings nloptr_output solution x0 global_opt_power local_opt_power GA_output
@@ -605,7 +605,7 @@ cat("rendered help :", trimws(grep("each at 60", page, value = TRUE)), "\n")
 cat("EXPECTED: ... hypotheses each at 60% power returns approximately 2.4, not 0.6.\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 roxygen source: #' \eqn{m = 4} hypotheses each at 60\% power returns approximately 2.4, not
@@ -658,7 +658,7 @@ if (length(i) && nzchar(Sys.which("pandoc"))) {
 cat("EXPECTED: no such link; a Markdown link to the rlang page is rendered as <a href=...>\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 roxygen-style links in the article: 1
@@ -689,7 +689,7 @@ With this change the script finds no roxygen-style link in the article, and pand
 
 **What the error is.** The branch adds a family of group sequential functions and a new hard dependency, gsDesign. The development section of `NEWS.md` has a "New functionality" heading with four entries: the stopping rule, and the three parts of the spending-parameter search (`sf_hsd_opt()`, `resolve_pvalues_gsd()` and the joint search of `graph_optimise_gsd()`). The group sequential functions they build on are never introduced. `transform_pvalues_gsd()`, `trial_success_gsd()`, `graph_optimise_gsd()` and `calc_power_pvals_gsd()` are named only in passing (as the place a rule or a spec is passed, and in the two bug-fix entries), which is why the script reports them as mentioned. `simulate_pvalues_gsd()` and `graph_optimize_gsd()` are not mentioned at all, and neither is gsDesign. A user who updates and reads the news learns of a stopping rule and of optimised spending for a feature that was never introduced, and is not told that a new package will be installed.
 
-**What causes it.** The development section was written one feature at a time: a bug-fix entry in `b215a49` (`9a88c24` on `gsd-build`), the stopping rule with a second bug-fix entry, and the three spending entries with the spending-parameter search (`NEWS.md:3-50`). The rest of the file is the "multigrain 1.0.0" section that came with the merge of `main`, which does not name the group sequential functions either. The design record holds the wording for the announcement (`dev/gsd_design_record.md:445-464`) and lists it as a task of its documentation phase (`:409`); it was never copied into the file.
+**What causes it.** The development section was written one feature at a time: a bug-fix entry in `b215a49` (`9a88c24` on `gsd-build`), the stopping rule with a second bug-fix entry, the three spending entries with the spending-parameter search, and, with the merge of `main` on 4 November (`e103474`), a "Changes" heading for the renamed verbosity option and an entry for the fast shortcut (`NEWS.md:3-64`). The rest of the file is the "multigrain 1.0.0" section that came with the merge of `main`, which does not name the group sequential functions either. The design record holds the wording for the announcement (`dev/gsd_design_record.md:445-464`) and lists it as a task of its documentation phase (`:409`); it was never copied into the file.
 
 **Code showing the problem** ([`reprex/DOC7.R`](reprex/DOC7.R)):
 
@@ -713,10 +713,10 @@ cat("gsDesign mentioned in the development section:", any(grepl("gsDesign", dev)
 cat("EXPECTED: a 'New functionality' heading that names all seven functions and the new dependency\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
-headings in the development section: ## New functionality ## Bug fixes
+headings in the development section: ## New functionality ## Changes ## Minor improvements and bug fixes
 calc_power_pvals_gsd     mentioned in the development section: TRUE
 graph_optimise_gsd       mentioned in the development section: TRUE
 graph_optimize_gsd       mentioned in the development section: FALSE
@@ -791,7 +791,7 @@ cat("same transition matrix:", isTRUE(all.equal(stored$trans_matrix, rebuilt$tra
 cat("EXPECTED: TRUE, and the same gain and source, since the script fixes every seed\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 ✔ Trial success function compiled and sourced successfully.
@@ -857,7 +857,7 @@ cat("class of that stored object:", class(x), "; lines printed by print():", len
 cat("EXPECTED: no vignette and no data file for a removed function, or a vignette that runs\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 lines of dev/vignettes/opt-sample-size.Rmd that mention optimize_N: 7
@@ -892,7 +892,7 @@ together with `mkdir dev/vignettes/data` and `git mv vignettes/articles/data/opt
 
 **What the error is.** The example in `?calc_power_pvals` defines a custom measure `average_power = function(x) { x[1] + x[2] + x[3] }`. That is the number of hypotheses rejected in one trial, so the value reported is the expected number of rejections. Run with `set.seed(1)`, the example gives `average_power` 2.289, identical to `exp_rejections`, where the mean of the three local powers is 0.763. A user who copies the example reports an "average power" above 1.
 
-**What causes it.** The roxygen example at `R/calc_power.R:98-100`, and the same lines in `man/calc_power_pvals.Rd`. A custom function receives the logical vector of one trial and its results are averaged over the trials (`R/calc_power.R:250-256`). A sum over the hypotheses is therefore not divided by their number.
+**What causes it.** The roxygen example at `R/calc_power.R:107-109`, and the same lines in `man/calc_power_pvals.Rd`. A custom function receives the logical vector of one trial and its results are averaged over the trials (`R/calc_power.R:259-265`). A sum over the hypotheses is therefore not divided by their number.
 
 **Code showing the problem** ([`reprex/DOC10.R`](reprex/DOC10.R)):
 
@@ -911,7 +911,7 @@ cat("mean of the three local powers:   ", mean(result$local_power), "\n")
 cat("EXPECTED: average_power equal to the mean of the local powers, a number between 0 and 1\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 ✔ Trial success function compiled and sourced successfully.
@@ -969,7 +969,7 @@ cat("fixed sequence, sum_to_one_constraint = FALSE:             ",
 cat("EXPECTED: text saying that TRUE requires every row to sum to 1 and FALSE allows less\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 ?is_graph_valid says:
@@ -1031,7 +1031,7 @@ for (f in c("README.md", "man/trial_success.Rd", "man/trial_success_gsd.Rd")) {
 cat("EXPECTED: the requirement stated in the help of both constructors\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 R/trial_success.R: sourceCpp() called at line 314
@@ -1087,7 +1087,7 @@ cat("chunk headers with two labels:", grep("^```\\{r [A-Za-z_-]+, [A-Za-z_-]+,",
 cat("EXPECTED: every link resolves, and no chunk header has two labels\n")
 ````
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ````
 line 231 links to trial_success.html             page exists: TRUE
@@ -1118,9 +1118,9 @@ With this change the script reports that all three links resolve and finds no ch
 - Branches: main and gsd-build (on `gsd-build` the word list is older)
 - Potential fix: suggested, not implemented
 
-**What the error is.** Two small things in the package metadata do not match the code. First, `Config/Needs/website` asks every site build to install gMCP and graphicalMCP, and no article, README or help example calls either of them. Second, `spelling::spell_check_package()`, which the script does not run, reports 22 words that are not in `inst/WORDLIST`, among them `DeCani`, `Pocock`, `GSD`, `familywise` and `argmax`. None of this affects a result. A third part of earlier versions, a release version number under a development heading, is fixed: the merge of `main` brought the development version 1.0.0.9000.
+**What the error is.** Two small things in the package metadata do not match the code. First, `Config/Needs/website` asks every site build to install gMCP and graphicalMCP, and no article, README or help example calls either of them. Second, `spelling::spell_check_package()`, which the script does not run, reports 23 words that are not in `inst/WORDLIST`, among them `DeCani`, `Pocock`, `GSD`, `familywise`, `argmax` and now `arXiv`. None of this affects a result. A third part of earlier versions, a release version number under a development heading, is fixed: the merges of `main` brought a development version number (1.0.0.9002 on `31ada01`). Since the fast shortcut, the help of `calc_power_pvals()` lists graphicalMCP among its references; the site still never runs it.
 
-**What causes it.** `DESCRIPTION:58` lists the four website packages; only rmarkdown and gridExtra are used (`vignettes/articles/get-started.Rmd:3, 534` and `vignettes/articles/gsd-joint-spending.Rmd:3, 312`). The line dates from the first public commit `1c028a7`. The merge of `main` brought its word list, with `arXiv`, `Grayling` and `Mander`; the words of the group sequential help pages and of the spending-parameter search were never added. `tests/spelling.R` runs the check with `error = FALSE`, so new words never fail a test.
+**What causes it.** `DESCRIPTION:59` lists the four website packages; only rmarkdown and gridExtra are used (`vignettes/articles/get-started.Rmd:3, 534` and `vignettes/articles/gsd-joint-spending.Rmd:3, 312`). The line dates from the first public commit `1c028a7`. The merge of `main` brought its word list, with `Grayling` and `Mander`; the words of the group sequential help pages and of the spending-parameter search were never added. The second merge of `main` (4 November, `e103474`) added six names cited by the fast shortcut and removed `arXiv`, which the README, `DESCRIPTION` and two help pages still use; that is the 23rd word (22 on `5585caf`). `tests/spelling.R` runs the check with `error = FALSE`, so new words never fail a test.
 
 **Code showing the problem** ([`reprex/DOC16.R`](reprex/DOC16.R)):
 
@@ -1144,7 +1144,7 @@ cat("Version:", d[, "Version"], "  first heading of NEWS.md:", readLines("NEWS.m
 cat("EXPECTED: only packages the site uses, and a development version number under a development heading\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 Config/Needs/website: rmarkdown, gMCP, graphicalMCP, gridExtra
@@ -1152,7 +1152,7 @@ Config/Needs/website: rmarkdown, gMCP, graphicalMCP, gridExtra
   gMCP          lines that call it (pkg:: or library()): 0
   graphicalMCP  lines that call it (pkg:: or library()): 0
   gridExtra     lines that call it (pkg:: or library()): 2
-Version: 1.0.0.9000   first heading of NEWS.md: # multigrain (development version)
+Version: 1.0.0.9002   first heading of NEWS.md: # multigrain (development version)
 EXPECTED: only packages the site uses, and a development version number under a development heading
 ```
 
@@ -1176,7 +1176,7 @@ and run `spelling::update_wordlist()` after reading the list it proposes. This h
 
 **What the error is.** `custom_power` may be a single function or a single gain, given without a list. Its value then comes back as `out$custom_power`. The help says that a single measure can be given, and that unnamed entries of a list are called `func1`, `func2` and so on; it does not say what a single measure is called. A user has to print `names(out)` to find the value. `calc_power_pvals_gsd()` behaves the same and its help has the same gap.
 
-**What causes it.** The name is set where the argument is normalised: `return(list(custom_power = x))` in `.auto_name_custom_power()` (`R/calc_power.R:196-198`) and in `.auto_name_custom_power_gsd()` (`R/calc_power_gsd.R:346-348`). The `@param custom_power` text does not mention it (`R/calc_power.R:20-22`, `R/calc_power_gsd.R:22-24`).
+**What causes it.** The name is set where the argument is normalised: `return(list(custom_power = x))` in `.auto_name_custom_power()` (`R/calc_power.R:205-207`) and in `.auto_name_custom_power_gsd()` (`R/calc_power_gsd.R:346-348`). The `@param custom_power` text does not mention it (`R/calc_power.R:20-22`, `R/calc_power_gsd.R:22-24`).
 
 **Code showing the problem** ([`reprex/DOC17a.R`](reprex/DOC17a.R)):
 
@@ -1199,7 +1199,7 @@ cat("?calc_power_pvals on a single measure:", txt[i:(i + 3)], sep = "\n")
 cat("EXPECTED: the help says that a single measure is reported as `custom_power`\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 names of the result: local_power exp_rejections disj_power conj_power custom_power
@@ -1257,7 +1257,7 @@ cat("graph_constraint_free(num_hyp = 3): a constraint on",
 cat("EXPECTED: the article names the argument `num_hyp`\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 article, line 54: 3. by supplying the number of hypotheses (`m`).
@@ -1310,7 +1310,7 @@ cat("README correlation of H1 and H3:", sub(".*1\\.0, 0\\.5, ([0-9.]+),.*", "\\1
 cat("EXPECTED: the same inputs in both, or no claim that one walks through the other\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 README links Getting Started as: full walk-through of the asthma example above
@@ -1357,7 +1357,7 @@ for (f in files) {
 cat("EXPECTED: \"a three-arm parallel confirmatory clinical trial\", \"means\", \"even though\", and no stray brackets\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 get-started.Rmd:84: Consider a two-arm parallel confirmatory clinical trial to compare a high and low dose of
@@ -1409,7 +1409,7 @@ cat("labels stored:", paste0("\"", pv$spending, "\"", collapse = ", "), "\n")
 cat("EXPECTED: \"gsDesign::sfLDOF\", \"gsDesign::sfLDPocock\"\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 labels stored: "list(gsDesign::sfLDOF, gsDesign::sfLDPocock)[[1]]", "list(gsDesign::sfLDOF, gsDesign::sfLDPocock)[[2]]"
@@ -1459,7 +1459,7 @@ cat("*.rmarkdown in .gitignore or .Rbuildignore:", any(grepl("rmarkdown", ign, f
 cat("EXPECTED: no .rmarkdown file in the repository, and *.rmarkdown ignored\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 committed: TRUE
@@ -1504,7 +1504,7 @@ cat("transform_pvalues_gsd(spending = <that function>):", msg, "\n")
 cat("EXPECTED: the suggested function is accepted, or the record gives one that is\n")
 ```
 
-Output on `gsd-build-spending` (`5585caf`):
+Output on `gsd-build-spending` (`31ada01`):
 
 ```
 the record suggests it at line 727
@@ -1514,3 +1514,333 @@ EXPECTED: the suggested function is accepted, or the record gives one that is
 
 **Potential fix.** Correct the record: give the guarded wrapper that the user testing used (`dev/review/gsd_user_testing/07_features.R:107-124`, which handles the single-look call and falls back to `sfLDOF` at the failing levels), or say that the classical boundary is not supported as a spending function. A package change could make `.gsd_check_spending()` call the function at the real information fractions, which would also serve A5; not tested.
 
+---
+
+<a name="ENV08"></a>
+## ENV08. The old name of the verbosity option is ignored without a message
+
+- Functions: multigrain_verbosity(), and every function whose `verbose` argument defaults to it: trial_success(), trial_success_gsd(), graph_optimise(), graph_optimise_gsd()
+- Branches: main and gsd-build-spending, since the option was renamed on `main` (#52, `e6a8672`, 23 October) and merged into `gsd-build-spending` on 4 November; not in multigrain 1.0.0 on CRAN, which uses the old name
+- Potential fix: tested in a session (the function replaced with `assignInNamespace()`), not in a build
+
+**What the error is.** Multigrain 1.0.0 reads its verbosity from the option `multigrain_verbosity`. The development version reads `multigrain.verbosity` instead, and the old name is now ignored with no message. A script that sets `options(multigrain_verbosity = "silent")` therefore prints the progress messages it used to suppress. `NEWS.md` records the rename under "Changes", but nothing tells the user at the moment it matters. Three files of the repository still set the old name: `dev/review/hsd_opt/article_example.R:22`, `dev/review/hsd_opt/gate_p3_benchmarks.R:59` and `data-raw/gsd-joint-spending-vignette.R:16`. The trial success article on the branch `trial_success_vignette` does too: knitted against `main` it prints the compile message 14 times, and none on its own branch. Only console output changes, never a result. Alex's report on the merge (`dev/review/hsd_opt/search_quality_report.md:328-329`) notes the silent change too.
+
+**What causes it.** `multigrain_verbosity()` reads only `getOption("multigrain.verbosity", "info")` (`R/utils_verbosity.R:25`).
+
+**Code showing the problem** ([`reprex/ENV08.R`](reprex/ENV08.R)):
+
+```r
+# ENV08: the old name of the verbosity option is ignored without a message
+# Run: Rscript ENV08.R   (about 5 s)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain_verbosity = "silent")          # the name used up to multigrain 1.0.0
+cat("multigrain_verbosity() returns:", multigrain_verbosity(), "\n")
+out <- capture.output(g <- trial_success(r1 + r2), type = "message")
+cat("messages printed by trial_success(r1 + r2):", length(out), "\n")
+if (length(out)) cat("  first:", out[1], "\n")
+cat("EXPECTED: \"silent\" and 0 messages, or a warning that the option was renamed to multigrain.verbosity\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+multigrain_verbosity() returns: info
+messages printed by trial_success(r1 + r2): 1
+  first: ✔ Trial success function compiled and sourced successfully.
+EXPECTED: "silent" and 0 messages, or a warning that the option was renamed to multigrain.verbosity
+```
+
+**Potential fix.** Read the old name when the new one is unset, and warn once:
+
+```r
+multigrain_verbosity <- function() {
+    mv_opt <- getOption("multigrain.verbosity")
+    old <- getOption("multigrain_verbosity")
+    if (is.null(mv_opt) && !is.null(old)) {
+        cli::cli_warn(
+            c("The option {.code multigrain_verbosity} was renamed {.code multigrain.verbosity}.",
+              i = "Its value is used; set {.code multigrain.verbosity} instead."),
+            .frequency = "once", .frequency_id = "multigrain_verbosity_renamed"
+        )
+        mv_opt <- old
+    }
+    if (is.null(mv_opt)) mv_opt <- "info"
+    # the existing check of the value follows unchanged
+```
+
+With this function put in place in a session (with `assignInNamespace()` and in the attached package, and with the `verbose` defaults of the four functions above re-pointed at it), the script prints `silent` and 0 messages, and the warning appears once; with both names set, the new one wins. The package's tests were not run with it, and its snapshot of the option's error message (`tests/testthat/_snaps/utils_verbosity.md`) was not checked. The alternative is to drop the old name for good and say so in a startup message.
+
+---
+
+<a name="HS4"></a>
+## HS4. The spending parameter cannot be optimised on its own (fixed graph, or one hypothesis)
+
+- Functions: graph_optimise_gsd(), graph_constraint(), graph_constraint_free()
+- Branches: gsd-build-spending only
+- Potential fix: suggested, not implemented
+
+**What the error is.** Two natural uses are refused. To keep the protocol's graph and choose only gamma, `graph_constraint()` with every weight fixed stops with "No hypothesis or transition weights to optimise". With one hypothesis, `graph_constraint_free(1)` stops with "`num_hyp` must be a whole number larger than or equal to 2". The first is often the first question for a real trial. The script shows the way round it: resolve each node and score the fixed graph with `calc_power_pvals_gsd()`.
+
+**What causes it.** `assert_graph_constraint_not_full()` (`R/graph_constraint_validation.R:145`, message at line 153) and `rlang::check_number_whole(num_hyp, min = 2)` (`R/graph_constraint.R:182`). Both make sense without a spec; with one, gamma is still free.
+
+**Code showing the problem** ([`reprex/HS4.R`](reprex/HS4.R)):
+
+```r
+# HS4: the spending parameter cannot be optimised on its own (fixed graph, or one hypothesis)
+# Run: Rscript HS4.R   (needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain.verbosity = "silent")
+set.seed(1)
+raw  <- simulate_pvalues_gsd(power_nominal = c(0.9, 0.8), corr_matrix = diag(2), info_frac = c(0.5, 1), nsim = 2000)
+spec <- transform_pvalues_gsd(raw, spending = list(gsDesign::sfLDOF, sf_hsd_opt(bounds = c(-4, 1), step = 0.5)), grid_size = 64L)
+gain <- trial_success_gsd(r1 * d(t1) + r2 * d(t2), d = c(1, 0.75))
+fixed <- tryCatch(graph_constraint(hyp_constraint = c(0.5, 0.5), trans_constraint = matrix(c(0, 1, 1, 0), 2)),
+                  error = function(e) e)
+msg <- if (inherits(fixed, "error")) conditionMessage(fixed) else tryCatch({
+    graph_optimise_gsd(pvals = spec, graph_constraint = fixed, trial_success = gain); "ran" },
+    error = function(e) conditionMessage(e))
+cat("graph fixed, gamma free:", gsub("\\s+", " ", paste(msg, collapse = " ")), "\n")
+cat("one hypothesis:         ", tryCatch({ graph_constraint_free(1); "ran" },
+    error = function(e) gsub("\\s+", " ", conditionMessage(e))), "\n")
+# the way round it: resolve each node and score the fixed graph
+nodes <- seq(-4, 1, by = 1)
+g <- vapply(nodes, function(v) calc_power_pvals_gsd(resolve_pvalues_gsd(spec, v), hyp_weight = c(0.5, 0.5),
+            trans_matrix = matrix(c(0, 1, 1, 0), 2), custom_power = list(gain = gain))$gain, numeric(1))
+cat("workaround, gain at gamma =", paste0(nodes, ": ", round(g, 4), collapse = ", "), "\n")
+cat("EXPECTED: graph_optimise_gsd() returns the best gamma for the fixed graph\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+graph fixed, gamma free: No hypothesis or transition weights to optimise. i For a more detailed diagnosis run `graph_constraint()` with `diagnose = TRUE`.
+one hypothesis:          `num_hyp` must be a whole number larger than or equal to 2, not the number 1.
+workaround, gain at gamma = -4: 1.3251, -3: 1.3328, -2: 1.3373, -1: 1.3368, 0: 1.3366, 1: 1.3265
+EXPECTED: graph_optimise_gsd() returns the best gamma for the fixed graph
+```
+
+**Potential fix.** Allow a fully fixed graph when `pvals` is a spec, and return the profile over gamma alone. Or document the workaround loop in the article.
+
+---
+
+<a name="HS5"></a>
+## HS5. print() gives the wrong step when the bounds are not multiples of the step
+
+- Functions: print() of a joint spending result
+- Branches: gsd-build-spending only
+- Potential fix: tested on an earlier state of the branch (`e45ee1f`, 15 October 2026) in a scratch build, not retested here
+
+**What the error is.** The lattice is the multiples of `step` inside `bounds`, plus both bounds. With `bounds = c(-3.9, 0.1)` and `step = 0.5` it is -3.9, -3.5, ..., 0, 0.1. `print()` then says "step 0.1". The stored `spending_step` is right (0.5).
+
+**What causes it.** `.hsd_fmt_lattice()` (`R/optimisation_gsd_opt.R:1283-1307`) prints the smallest gap between nodes (lines 1303-1305) instead of the stored step.
+
+**Code showing the problem** ([`reprex/HS5.R`](reprex/HS5.R)) (about 20 s):
+
+```r
+# HS5: print() gives the wrong step when the bounds are not multiples of the step
+# Run: Rscript HS5.R   (about 20 s; needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain.verbosity = "silent")
+set.seed(1)
+raw  <- simulate_pvalues_gsd(power_nominal = c(0.9, 0.8), corr_matrix = diag(2), info_frac = c(0.5, 1), nsim = 2000)
+spec <- transform_pvalues_gsd(raw, spending = list(gsDesign::sfLDOF, sf_hsd_opt(bounds = c(-3.9, 0.1), step = 0.5)), grid_size = 64L)
+gain <- trial_success_gsd(r1 * d(t1) + r2 * d(t2), d = c(1, 0.75))
+set.seed(3)
+res <- graph_optimise_gsd(pvals = spec, graph_constraint = graph_constraint_free(2), trial_success = gain, num_threads = 2)
+cat("lattice:", sort(unique(res$spending_profile$value)), "\n")
+cat("stored spending_step:", res$spending_step, "\n")
+cat(grep("step", capture.output(print(res)), value = TRUE), sep = "\n")
+cat("EXPECTED: print() says step 0.5, the stored step\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+lattice: -3.9 -3.5 -3 -2.5 -2 -1.5 -1 -0.5 0 0.1
+stored spending_step: 0.5
+  H2: sfHSD(param = -2)   [optimised: gamma, bounds -3.9 to 0.1, step 0.1]
+EXPECTED: print() says step 0.5, the stored step
+```
+
+**Potential fix.** Use `x$spending_step`, falling back to the smallest gap only when it is missing. It may also help to say when the end nodes are uneven: the genetic algorithm gives each node the same share of the gene, so a node 0.1 from its neighbour gets as much weight as one 0.5 away.
+
+---
+
+<a name="HS7"></a>
+## HS7. A short-circuited member of a shared parameter is labelled with the start value
+
+- Functions: transform_pvalues_gsd() with a spending spec; print() of a joint result
+- Branches: gsd-build-spending only
+- Potential fix: tested on an earlier state of the branch (`e45ee1f`, 15 October 2026) in a scratch build, not retested here (a judgement call)
+
+**What the error is.** In a shared group, a hypothesis with one look at full information takes no part in the search. In the script H2 has one look, at full information, and shares a parameter with H1. The search gives the shared parameter -0.5, yet H2 is labelled `sfHSD(param = -1.5)` and printed as "[fixed at -1.5: one look at full information]". The -1.5 is the start node and appears nowhere else in the result.
+
+**What causes it.** `R/transform_pvalues_gsd_opt.R:599-613` uses the start node as a stand-in label, and `.hsd_spending_notes()` (`R/optimisation_gsd_opt.R:1178`) prints it as "fixed at" (lines 1208-1216). The tests assert this label, so it was a design choice.
+
+**Code showing the problem** ([`reprex/HS7.R`](reprex/HS7.R)) (about 15 s):
+
+```r
+# HS7: a short-circuited member of a shared parameter is labelled with the start value
+# Run: Rscript HS7.R   (about 15 s; needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain.verbosity = "silent")
+info <- rbind(c(0.5, 1), c(NA, 1))          # H2 has one look, at full information
+set.seed(1)
+raw  <- simulate_pvalues_gsd(power_nominal = c(0.9, 0.8), corr_matrix = diag(2), info_frac = info, nsim = 2000)
+tag  <- sf_hsd_opt(id = "shared", bounds = c(-4, 1), step = 0.5)
+spec <- transform_pvalues_gsd(raw, spending = list(tag, tag), grid_size = 64L)
+gain <- trial_success_gsd(r1 * d(t1) + r2 * d(t2), d = c(1, 0.75))
+set.seed(3)
+res <- graph_optimise_gsd(pvals = spec, graph_constraint = graph_constraint_free(2), trial_success = gain, num_threads = 2)
+cat("chosen value of the shared parameter:", res$spending_param, "\n")
+cat("labels:", paste(res$spending, collapse = " | "), "\n")
+cat(grep("H2:", capture.output(print(res)), value = TRUE), sep = "\n")
+cat("EXPECTED: H2 labelled as having no spending choice (any value), not with the start value -1.5\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+chosen value of the shared parameter: -0.5
+labels: sfHSD(param = -0.5) | sfHSD(param = -1.5)
+  H2: sfHSD(param = -1.5)   [fixed at -1.5: one look at full information]
+EXPECTED: H2 labelled as having no spending choice (any value), not with the start value -1.5
+```
+
+**Potential fix.** Label the hypothesis `sfHSD(param = any)` and print "[spending: no effect, one look at full information]". The stand-in node is still used for the transform, which is correct because the boundary is the level for any spending function. On `e45ee1f` five test expectations changed: two snapshots and three `expect_identical()` checks of the old label.
+
+---
+
+<a name="HS8"></a>
+## HS8. sf_hsd_opt() prints as a bare function with attributes
+
+- Functions: sf_hsd_opt()
+- Branches: gsd-build-spending only
+- Potential fix: tested on an earlier state of the branch (`e45ee1f`, 15 October 2026) in a scratch build, not retested here
+
+**What the error is.** Printing a tag shows the function body, its environment and four attributes: 13 lines for one tag.
+
+**What causes it.** `sf_hsd_opt()` returns a function of class `multigrain_sf_hsd_opt` (`R/transform_pvalues_gsd_opt.R:87-111`), and there is no print method for that class.
+
+**Code showing the problem** ([`reprex/HS8.R`](reprex/HS8.R)):
+
+```r
+# HS8: sf_hsd_opt() prints as a bare function with attributes
+# Run: Rscript HS8.R   (needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+out <- capture.output(print(sf_hsd_opt(id = "secondary", bounds = c(-4, -2), step = 0.5)))
+cat("lines printed:", length(out), "\n")
+cat(head(out, 4), sep = "\n")
+cat("EXPECTED: one line, e.g. <sf_hsd_opt> secondary: Hwang-Shih-DeCani spending, parameter in [-4, -2], step 0.5 (5 nodes)\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+lines printed: 13
+function (alpha, t, param)
+{
+    gsDesign::sfHSD(alpha, t, param)$spend
+}
+EXPECTED: one line, e.g. <sf_hsd_opt> secondary: Hwang-Shih-DeCani spending, parameter in [-4, -2], step 0.5 (5 nodes)
+```
+
+**Potential fix.** A `print.multigrain_sf_hsd_opt()` method that prints one line:
+
+```
+<sf_hsd_opt> secondary: Hwang-Shih-DeCani spending, parameter in [-4, -2], step 0.5 (5 nodes)
+```
+
+---
+
+<a name="HS9"></a>
+## HS9. The article's fresh-draws check cannot show the optimism it is introduced to measure
+
+- Functions: none (article gsd-joint-spending)
+- Branches: gsd-build-spending only
+- Potential fix: suggested, not implemented
+
+**What the error is.** The article says that the reported gain is "slightly optimistic (the winner's curse)" and checks it on fresh draws. The fresh gain (0.6936) comes out higher than the reported one (0.6930). Scored in 20 batches of 5,000, the standard error of the fresh gain is 0.0011, larger than the optimism being checked. A reader is left unsure what the check showed.
+
+**What causes it.** `vignettes/articles/gsd-joint-spending.Rmd:431` introduces the check and line 464 reports it, without a standard error.
+
+**Code showing the problem** ([`reprex/HS9.R`](reprex/HS9.R)) (about 1 minute):
+
+```r
+# HS9: the article's fresh-draws check cannot show the optimism it is introduced to measure
+# Run from the repository root: Rscript HS9.R   (about 1 minute; needs a gsd-build-spending build of multigrain)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain.verbosity = "silent")
+stored <- readRDS("vignettes/articles/data/gsd-joint-spending.rds")
+mj <- stored$main_joint
+g_star <- unname(mj$spending_param[[1]])
+cat("reported gain:", round(mj$power$trial_success, 4), "  fresh-draws gain:", round(stored$main_check$gain, 4), "\n")
+# the article's fresh draws, scored in 20 batches of 5,000 to get a standard error
+gain <- trial_success_gsd(0.6 * d(t1) + 0.4 * d(t2), d = c(1, 0.8))
+set.seed(20261008)
+raw <- simulate_pvalues_gsd(power_nominal = c(H1 = 0.90, H2 = 0.80), corr_matrix = matrix(c(1, 0.5, 0.5, 1), 2),
+                            info_frac = c(0.5, 1), nsim = 1e5)
+sf <- function(alpha, t) gsDesign::sfHSD(alpha, t, g_star)$spend
+score <- function(rows) {
+    pv <- transform_pvalues_gsd(raw[rows, , , drop = FALSE], info_frac = c(0.5, 1), spending = list(gsDesign::sfLDOF, sf))
+    calc_power_pvals_gsd(pv, hyp_weight = mj$hyp_weight, trans_matrix = mj$trans_matrix,
+                         stopping_rule = stopping_rule_gsd(r1), custom_power = list(gain = gain))$gain
+}
+b <- vapply(split(seq_len(1e5), rep(1:20, each = 5000)), score, numeric(1))
+cat("fresh gain, recomputed:", round(mean(b), 4), "  standard error:", round(sd(b) / sqrt(20), 4), "\n")
+cat("EXPECTED: an optimism (reported minus fresh) larger than its standard error, or the standard error quoted beside it\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+reported gain: 0.693   fresh-draws gain: 0.6936
+fresh gain, recomputed: 0.6936   standard error: 0.0011
+EXPECTED: an optimism (reported minus fresh) larger than its standard error, or the standard error quoted beside it
+```
+
+**Potential fix.** Quote the standard error next to the fresh gain. Better, compare the chosen design with the fixed-spending baseline on the same fresh draws, where the paired difference is precise.
+
+---
+
+<a name="HS10"></a>
+## HS10. The article's data script stops at its report on R older than 4.4
+
+- Functions: none (data-raw/gsd-joint-spending-vignette.R)
+- Branches: gsd-build-spending only
+- Potential fix: suggested, not implemented
+
+**What the error is.** `data-raw/gsd-joint-spending-vignette.R` uses `%||%` at line 208. That operator joined base R in 4.4. On R 4.3.3, the version in `dev/cloud_setup.md`, the script saves its results and then stops with "could not find function \"%||%\"". The package itself needs only R 4.1.
+
+**What causes it.** The script attaches only multigrain (line 15), which does not export `%||%`, and defines no fallback.
+
+**Code showing the problem** ([`reprex/HS10.R`](reprex/HS10.R)):
+
+```r
+# HS10: the article's data script stops at its report on R older than 4.4
+# Run from the repository root: Rscript HS10.R   (base R only)
+# fmt: skip file
+src <- readLines("data-raw/gsd-joint-spending-vignette.R")
+i <- grep("%||%", src, fixed = TRUE)
+cat("lines using %||%:", i, "\n")
+cat("R version:", as.character(getRversion()), "  %||% in base R:", exists("%||%", envir = baseenv()), "\n")
+cat("rlang or a local definition loaded by the script:", any(grepl("library\\(rlang\\)|`%\\|\\|%` <-|%\\|\\|% <-", src)), "\n")
+cat("EXPECTED: the script defines %||% or calls rlang::`%||%`, so it runs on every R the package supports (R >= 4.1)\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+lines using %||%: 208
+R version: 4.3.3   %||% in base R: FALSE
+rlang or a local definition loaded by the script: FALSE
+EXPECTED: the script defines %||% or calls rlang::`%||%`, so it runs on every R the package supports (R >= 4.1)
+```
+
+**Potential fix.** Use `rlang::"%||%"` or define the operator at the top of the script.
