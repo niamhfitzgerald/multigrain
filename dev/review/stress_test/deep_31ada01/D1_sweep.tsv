@@ -1,0 +1,244 @@
+sim | power 0	ok		array 10x2x2; NA 0; range 0.000108 to 1		0
+sim | power 1	ok		array 10x2x2; NA 0; range 0 to 0.356		0
+sim | power below alpha	ok		array 10x2x2; NA 0; range 8.18e-05 to 0.946		0
+sim | power NA	ok		array 10x2x2; NA 20; range 2.6e-06 to 0.613		0
+sim | power 1.2	ok		array 10x2x2; NA 20; range 0.000513 to 0.96	NaNs produced	0
+sim | power empty	error	simpleError	sqrt(info_vec) :: non-numeric argument to mathematical function	non-empty data for zero-extent matrix	0
+sim | power length vs corr	error	rlang_error	simulate_pvalues_gsd(0.8, corr_matrix = diag(2), info_frac = c(0.5,  :: `corr_matrix` must be a 1 by 1 matrix, one row and column per value in `power_nominal`.		0.05
+sim | alpha 0	ok		array 10x2x2; NA 0; range 0 to 0		0
+sim | alpha 1	ok		array 10x2x2; NA 0; range 1 to 1		0
+sim | alpha NA	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), alpha = NA, info_frac = c(0.5,  :: `alpha` must be a number, not `NA`.		0.01
+sim | alpha vector	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), alpha = c(0.025, 0.05), info_frac = c(0.5,  :: `alpha` must be a number, not a double vector.		0.02
+sim | corr not symmetric	error	simpleError	mvtnorm::rmvnorm(nsim, mean = mean_vec, sigma = covariance) :: sigma must be a symmetric matrix		0
+sim | corr NA	error	simpleError	eigen(sigma, symmetric = TRUE) :: infinite or missing values in 'x'		0
+sim | corr 3x3 for 2	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), corr_matrix = diag(3), info_frac = c(0.5,  :: `corr_matrix` must be a 2 by 2 matrix, one row and column per value in `power_nominal`.		0.02
+sim | info duplicate	ok		array 10x2x3; NA 0; range 1.07e-05 to 0.451		0
+sim | info decreasing	error	rlang_error	FUN(X[[i]], ...) :: Information fractions for hypothesis 1 must be non-decreasing.		0.01
+sim | info 0 first	error	rlang_error	FUN(X[[i]], ...) :: Information fractions for hypothesis 1 must be positive.		0.01
+sim | info negative	error	rlang_error	FUN(X[[i]], ...) :: Information fractions for hypothesis 1 must be positive.		0.01
+sim | info Inf	error	simpleError	eigen(sigma, symmetric = TRUE) :: infinite or missing values in 'x'		0
+sim | info NA in vector	ok		array 10x2x2; NA 20; range 2.5e-05 to 0.0858		0
+sim | info single 1	ok		array 10x2x1; NA 0; range 7.71e-06 to 0.489		0
+sim | info 1 then 1	ok		array 10x2x2; NA 0; range 2.87e-08 to 0.0747		0
+sim | info matrix wrong rows	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), info_frac = rbind(c(0.5, 1),  :: `info_frac` must have one row per hypothesis: 2, not 3.		0.02
+sim | info row all NA	error	rlang_error	FUN(X[[i]], ...) :: Hypothesis 2 has no analysis with an information fraction.		0.01
+sim | info character	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), info_frac = c("0.5", "1"),  :: `info_frac` must be a non-empty numeric vector or matrix.		0.02
+sim | nsim 0	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), info_frac = c(0.5, 1), nsim = 0) :: `nsim` must be a whole number larger than or equal to 1, not the number 0.		0.01
+sim | nsim 1	ok		array 1x2x2; NA 0; range 4.88e-06 to 0.706		0
+sim | nsim 2.5	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), info_frac = c(0.5, 1), nsim = 2.5) :: `nsim` must be a whole number, not the number 2.5.		0.01
+sim | nsim -3	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), info_frac = c(0.5, 1), nsim = -3) :: `nsim` must be a whole number larger than or equal to 1, not the number -3.		0.02
+sim | nsim NA	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), info_frac = c(0.5, 1), nsim = NA) :: `nsim` must be a whole number, not `NA`.		0.01
+sim | nsim Inf	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), info_frac = c(0.5, 1), nsim = Inf) :: `nsim` must be a whole number, not `Inf`.		0.01
+sim | extra dot argument	error	rlib_error_dots_nonempty	simulate_pvalues_gsd(c(0.9, 0.8), info_frac = c(0.5, 1), nsim = 10,  :: `...` must be empty. ✖ Problematic argument: • foo = 1		0.02
+sim | info_frac missing	error	rlang_error	simulate_pvalues_gsd(c(0.9, 0.8), nsim = 10) :: `info_frac` is absent but must be supplied.		0.01
+sim | named power	ok		NULL : NULL		0
+tr | 2-d matrix	error	rlang_error	transform_pvalues_gsd(raw[, , 1], info_frac = c(0.5, 1), spending = sf_of,  :: `pvals` must be a three-dimensional array, `c(nsim, m, K)`, not one with 2 dimensions.		0.02
+tr | dims vs info	error	rlang_error	transform_pvalues_gsd(raw, info_frac = c(0.3, 0.6, 1), spending = sf_of,  :: `info_frac` must have 2 values, not 3.		0.02
+tr | NA p-value at interim	ok		pvals_gsd 200x2x2; range 8.32e-10 to 1; NA 0		0.11
+tr | NA p-value at final	ok		pvals_gsd 200x2x2; range 8.32e-10 to 1; NA 0		0.1
+tr | p-value above 1	error	rlang_error	transform_pvalues_gsd(r, spending = sf_of, grid_size = 64L) :: `pvals` must contain p-values between 0 and 1.		0.01
+tr | p-value negative	error	rlang_error	transform_pvalues_gsd(r, spending = sf_of, grid_size = 64L) :: `pvals` must contain p-values between 0 and 1.		0.02
+tr | p-value 0	ok		pvals_gsd 200x2x2; range 1e-14 to 1; NA 0		0.09
+tr | p-value 1	ok		pvals_gsd 200x2x2; range 8.32e-10 to 1; NA 0		0.1
+tr | p-value NaN	ok		pvals_gsd 200x2x2; range 8.32e-10 to 1; NA 0		0.07
+tr | p-value Inf	error	rlang_error	transform_pvalues_gsd(r, spending = sf_of, grid_size = 64L) :: `pvals` must contain p-values between 0 and 1.		0.01
+tr | character array	error	rlang_error	transform_pvalues_gsd(array("0.1", c(5, 2, 2)), info_frac = c(0.5,  :: `pvals` must be a double, not a character 3D array.		0.01
+tr | one simulation	ok		pvals_gsd 1x2x2; range 4.85e-05 to 1; NA 0		0.1
+tr | one hypothesis	ok		pvals_gsd 200x1x2; range 8.32e-10 to 1; NA 0		0.05
+tr | no info_frac anywhere	error	rlang_error	transform_pvalues_gsd(array(runif(40), c(10, 2, 2)), spending = sf_of,  :: `info_frac` must be supplied. ℹ Either pass it directly or attach it to `pvals` as an info_frac attribute.		0.02
+tr | info differs from attribute	ok		pvals_gsd 200x2x2; range 8.32e-10 to 1; NA 0		0.09
+tr | spending errors	error	simpleError	spending(alpha, t_look) :: boom		0
+tr | spending over alpha	error	rlang_error	transform_pvalues_gsd(raw, spending = function(a, t) 2 * a *  :: Spending function for hypothesis 1 does not spend the whole level by full information. ✖ It spends 0.05 of 0.025 at an information fraction of 1. ℹ A spending function that stops short would silently waste alpha.		0.03
+tr | spending decreasing	error	simpleError	checkRange(x, ..., varname = deparse(substitute(x))) :: probhi not on interval [0, 1)		0
+tr | spending NA	error	rlang_error	transform_pvalues_gsd(raw, spending = function(a, t) rep(NA_real_,  :: The spending function for hypothesis 1 is not usable. ✖ It must return 1 non-missing cumulative spend value, not 1.		0.02
+tr | spending wrong length	error	rlang_error	.gsd_transform_hyp(matrix(pvals[, i, ], nrow = n_sim, ncol = n_look),  :: The spending function for hypothesis 1 is not usable. ✖ It must return 2 non-missing cumulative spend values, not 1.		0.02
+tr | spending negative	error	rlang_error	transform_pvalues_gsd(raw, spending = function(a, t) a * t -  :: Spending function for hypothesis 1 does not spend the whole level by full information. ✖ It spends 0.0125 of 0.025 at an information fraction of 1. ℹ A spending function that stops short would silently waste alpha.		0.02
+tr | spending a number	error	rlang_error	transform_pvalues_gsd(raw, spending = 0.5, grid_size = 64L) :: `spending` must be a function or a list of functions.		0.02
+tr | spending a string	error	rlang_error	transform_pvalues_gsd(raw, spending = "sfLDOF", grid_size = 64L) :: `spending` must be a function or a list of functions.		0.01
+tr | spending list too short	error	rlang_error	transform_pvalues_gsd(raw, spending = list(sf_of), grid_size = 64L) :: `spending` must hold 1 or 2 functions, not 1.		0.02
+tr | spending list too long	error	rlang_error	transform_pvalues_gsd(raw, spending = list(sf_of, sf_of, sf_of),  :: `spending` must hold 1 or 2 functions, not 3.		0.02
+tr | spending list with NULL	error	rlang_error	transform_pvalues_gsd(raw, spending = list(sf_of, NULL), grid_size = 64L) :: `spending` must be a function or a list of functions.		0.01
+tr | spending under-spends at 1	error	rlang_error	transform_pvalues_gsd(raw, spending = function(a, t) 0.5 * a *  :: Spending function for hypothesis 1 does not spend the whole level by full information. ✖ It spends 0.0125 of 0.025 at an information fraction of 1. ℹ A spending function that stops short would silently waste alpha.		0.02
+tr | spending ignores level	error	rlang_error	.gsd_transform_hyp(matrix(pvals[, i, ], nrow = n_sim, ncol = n_look),  :: The boundary table cannot be inverted. ✖ Fewer than two distinct positive boundaries were found. ℹ Try a larger `grid_size` or a later information fraction.		0.05
+tr | alpha 0	error	simpleError	checkRange(x, ..., varname = deparse(substitute(x))) :: alpha not on interval (0, Inf)		0
+tr | alpha 1	error	simpleError	checkRange(x, ..., varname = deparse(substitute(x))) :: probhi not on interval [0, 1)		0.04
+tr | alpha 0.5	ok		pvals_gsd 200x2x2; range 8.32e-10 to 1; NA 0		0.17
+tr | alpha 1e-10	error	rlang_error	.gsd_transform_hyp(matrix(pvals[, i, ], nrow = n_sim, ncol = n_look),  :: The boundary table cannot be inverted. ✖ Fewer than two distinct positive boundaries were found. ℹ Try a larger `grid_size` or a later information fraction.		0.07
+tr | alpha 1e-15	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, alpha = 1e-15, grid_size = 64L) :: Spending function for hypothesis 1 does not spend the whole level by full information. ✖ It spends 1.11022302462516e-15 of 1e-15 at an information fraction of 1. ℹ A spending function that stops short would silently waste alpha.		0.02
+tr | alpha NA	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, alpha = NA, grid_size = 64L) :: `alpha` must be a number, not `NA`.		0.01
+tr | look_back NA	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, look_back = NA,  :: `look_back` must not be missing.		0.02
+tr | look_back length 3	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, look_back = c(TRUE,  :: `look_back` must have 1 or 2 values, not 3.		0.02
+tr | look_back 1	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, look_back = 1, grid_size = 64L) :: `look_back` must be a logical vector, not the number 1.		0.01
+tr | look_back string	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, look_back = "yes",  :: `look_back` must be a logical vector, not the string "yes".		0.02
+tr | grid_size 1	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, grid_size = 1L) :: `grid_size` must be a whole number larger than or equal to 2, not the number 1.		0.01
+tr | grid_size 0	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, grid_size = 0L) :: `grid_size` must be a whole number larger than or equal to 2, not the number 0.		0.01
+tr | grid_size 1.5	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, grid_size = 1.5) :: `grid_size` must be a whole number, not the number 1.5.		0.01
+tr | grid_size NA	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, grid_size = NA) :: `grid_size` must be a whole number, not `NA`.		0.02
+tr | grid_size string	error	rlang_error	transform_pvalues_gsd(raw, spending = sf_of, grid_size = "64") :: `grid_size` must be a whole number, not the string "64".		0.01
+tr | grid_size 1e6	crash	exit 124			
+tr | extra dot argument	error	rlib_error_dots_nonempty	transform_pvalues_gsd(raw, spending = sf_of, grid_size = 64L,  :: `...` must be empty. ✖ Problematic argument: • foo = 1		0.06
+tr | spending missing	error	rlang_error	transform_pvalues_gsd(raw, grid_size = 64L) :: `spending` is absent but must be supplied.		0.02
+tr | three looks equal spacing	ok		pvals_gsd 50x2x3; range 2.55e-07 to 1; NA 0		0.14
+tr | info above 1 at final	ok		pvals_gsd 200x2x2; range 8.32e-10 to 1; NA 0		0.1
+tr | sfLDOF passed directly	ok		pvals_gsd 200x2x2; range 8.32e-10 to 1; NA 0		0.11
+tr | sfHSD passed directly	error	simpleError	spending(alpha, t_look) :: argument "param" is missing, with no default		0.01
+cp | raw array	error	rlang_error	calc_power_pvals_gsd(raw, w, G) :: `pvals` must be a multigrain_pvals_gsd object (see transform_pvalues_gsd()), not a double 3D array.		0.02
+cp | spec object	error	rlang_error	calc_power_pvals_gsd(spec, w, G) :: `pvals` is a spending spec, not a transformed p-value object. ℹ Pass it to `graph_optimise_gsd()` to optimise the spending parameters, or   call `resolve_pvalues_gsd()` with chosen values.		0.02
+cp | weights sum 1.2	error	rlang_error	 :: The supplied `hyp_weight` and `trans_matrix` do not build a valid graph.	`hyp_weight` does not sum to 1 within tolerance.	0.02
+cp | weights sum 0.8	error	rlang_error	 :: The supplied `hyp_weight` and `trans_matrix` do not build a valid graph.	`hyp_weight` does not sum to 1 within tolerance.	0.02
+cp | weight negative	error	rlang_error	 :: The supplied `hyp_weight` and `trans_matrix` do not build a valid graph.	`hyp_weight` contains elements outside the interval [0, 1].	0.01
+cp | weight NA	error	simpleError	if (any(hyp_weight < 0 | hyp_weight > 1)) { :: missing value where TRUE/FALSE needed		0
+cp | weights length 3	error	rlang_error	 :: `hyp_weight` and `pvals` disagree on the number of hypotheses. ✖ `hyp_weight` describes m = 3 hypotheses, but the p-values hold m = 2.		0.03
+cp | weights named other order	ok		numeric : 0.885 0.750		0
+cp | diagonal 1	error	rlang_error	 :: The supplied `hyp_weight` and `trans_matrix` do not build a valid graph.	Diagonals of `trans_matrix` are not all zero.	0.01
+cp | row sum 1.5	error	rlang_error	 :: The supplied `hyp_weight` and `trans_matrix` do not build a valid graph.	`trans_matrix` contains elements outside the interval [0, 1].	0.02
+cp | row sum 1.5 no check	error	rlang_error	 :: The supplied `hyp_weight` and `trans_matrix` do not build a valid graph.	`trans_matrix` contains elements outside the interval [0, 1].	0.01
+cp | transition NA	error	simpleError	if (any(trans_matrix < 0 | trans_matrix > 1)) { :: missing value where TRUE/FALSE needed		0
+cp | transition 3x3	error	rlang_error	 :: `trans_matrix` and `pvals` disagree on the number of hypotheses. ✖ `trans_matrix` describes m = 3 hypotheses, but the p-values hold m = 2.		0.02
+cp | transition data.frame	error	rlang_error	calc_power_pvals_gsd(pv, w, as.data.frame(G)) :: `trans_matrix` must be a double matrix, not a <data.frame> object.		0.01
+cp | alpha above build level	error	rlang_error	calc_power_pvals_gsd(pv, w, G, alpha = 0.05) :: `alpha` must be a number between 0 and 0.025, not the number 0.05.		0.01
+cp | alpha 0	error	rlang_error	calc_power_pvals_gsd(pv, w, G, alpha = 0) :: `alpha` must be greater than 0 and at most 0.025, not 0. ℹ The repeated p-values were built up to 0.025 and are capped at 1 above it, so   no allocation beyond that level could ever reject.		0.02
+cp | alpha negative	error	rlang_error	calc_power_pvals_gsd(pv, w, G, alpha = -0.01) :: `alpha` must be a number between 0 and 0.025, not the number -0.01.		0.01
+cp | alpha NA	error	rlang_error	calc_power_pvals_gsd(pv, w, G, alpha = NA) :: `alpha` must be a number, not `NA`.		0.01
+cp | alpha smaller	ok		numeric : 0.835		0
+cp | custom function returns NA	ok		numeric : NA		0
+cp | custom function returns 2 values	error	simpleError	vapply(seq_len(nrow(time)), function(i) item(time[i, ]), FUN.VALUE = numeric(1L)) :: values must be length 1,  but FUN(X[[1]]) result is length 2		0
+cp | custom function errors	error	simpleError	item(time[i, ]) :: inner		0
+cp | custom function returns string	error	simpleError	vapply(seq_len(nrow(time)), function(i) item(time[i, ]), FUN.VALUE = numeric(1L)) :: values must be type 'double',  but FUN(X[[1]]) result is type 'character'		0
+cp | custom not a function	error	rlang_error	 :: Each element of `custom_power` must be a function, a <multigrain_trial_success_gsd> object or a <multigrain_trial_success> object, not a string.		0.02
+cp | custom list with NULL	error	rlang_error	 :: Each element of `custom_power` must be a function, a <multigrain_trial_success_gsd> object or a <multigrain_trial_success> object, not a string.		0.01
+cp | custom unnamed two	ok		character : local_power             local_power_by_analysis exp_rejections          disj_power              conj_power              mean_decision_look      time_distribution       stop_distribution       mean_stop_look          func1                   func2                  		0
+cp | custom duplicate names	ok		list List of 1  $ a: num 1.29		0
+cp | gain K 3 on K 2	error	rlang_error	 :: `custom_power$g` and `pvals` disagree on the number of analyses. ✖ The trial success function is defined over K = 3, but the p-values hold K =   2. ℹ Its discount table (`d`) has length 3.		0.03
+cp | fixed-sample gain	ok		numeric : 1.64		0
+cp | rule for r3 on m 2	error	rlang_error	 :: `stopping_rule` refers to hypothesis `r3` but `pvals` holds m = 2 hypotheses.		0.01
+cp | rule as expression	error	rlang_error	call_match(trace$call[[i]], frame_fn(error_frame), defaults = TRUE) :: `fn` must be supplied.		0.02
+cp | rule with 2 conditions on K 2	ok		numeric : 1.875	The final analysis always ends the trial; the last condition of `stopping_rule`, `r2`, is ignored. ℹ `pvals` holds K = 2 analyses. A rule gives one condition per interim   analysis.	0.01
+cp | rule with 3 conditions on K 2	error	rlang_error	 :: `stopping_rule` must give one condition per interim analysis. ✖ It gives 3 conditions. ℹ `pvals` holds K = 2 analyses. The rule needs 1 condition, or a single   condition (not in a list) applied at every interim analysis.		0.02
+cp | sum_to_one string	error	rlang_error	calc_power_pvals_gsd(pv, w, G, sum_to_one_constraint = "TRUE") :: `sum_to_one_constraint` must be a logical vector, not the string "TRUE".		0.01
+cp | extra dot argument	error	rlib_error_dots_nonempty	calc_power_pvals_gsd(pv, w, G, foo = 1) :: `...` must be empty. ✖ Problematic argument: • foo = 1		0.01
+cp | hyp_weight integer	error	rlang_error	calc_power_pvals_gsd(pv, c(1L, 0L), G) :: `hyp_weight` must be a double, not an integer vector.		0.01
+cp | trans integer matrix	error	rlang_error	calc_power_pvals_gsd(pv, w, matrix(c(0L, 1L, 1L, 0L), 2)) :: `trans_matrix` must be a double matrix, not an integer matrix.		0.01
+cp | fixed sequence rows 0	ok		numeric : 0.885 0.750		0
+opt | constraint 3 for 2	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(3), gain, global_search = FALSE) :: `graph_constraint` and `pvals` disagree on the number of hypotheses. ✖ `graph_constraint` describes m = 3 hypotheses, but the p-values hold m = 2.		0.03
+opt | gain K 3	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain_k3, global_search = FALSE) :: `trial_success` and `pvals` disagree on the number of analyses. ✖ The trial success function is defined over K = 3, but the p-values hold K =   2. ℹ Its discount table (`d`) has length 3.		0.02
+opt | fixed-sample gain	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain_fs, global_search = FALSE) :: `trial_success` was created with `trial_success()` and scores rejection indicators only. ✖ A group sequential gain is evaluated on the analysis at which each hypothesis   was rejected. ℹ Use `trial_success_gsd()`; a rejection-only gain such as `r1 + r2` can be   written there too.		0.03
+opt | gain a function	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), function(t) sum(t >  :: `trial_success` must be a multigrain_trial_success_gsd object (see trial_success_gsd()), not a function.		0.01
+opt | rule bad type	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain, stopping_rule = "r1",  :: `stopping_rule` must be a multigrain_stopping_rule_gsd object (see stopping_rule_gsd()) or `NULL`, not the string "r1".		0.02
+opt | num_threads 0	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain, num_threads = 0,  :: `num_threads` must be a whole number larger than or equal to 1, not the number 0.		0.01
+opt | num_threads 1.5	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain, num_threads = 1.5,  :: `num_threads` must be a whole number, not the number 1.5.		0.01
+opt | num_threads NA	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain, num_threads = NA,  :: `num_threads` must be a whole number, not `NA`.		0.01
+opt | alpha above build	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain, alpha = 0.05,  :: `alpha` must be a number between 0 and 0.025, not the number 0.05.		0.01
+opt | raw array	error	rlang_error	graph_optimise_gsd(raw, graph_constraint_free(2), gain, global_search = FALSE) :: `pvals` must be a multigrain_pvals_gsd object (see transform_pvalues_gsd()), not a double 3D array.		0.01
+opt | start graph invalid	error	simpleError	g$hyp_weight :: $ operator is invalid for atomic vectors		0
+opt | global_search NA	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain, global_search = NA) :: `global_search` can't contain NA values.		0
+opt | control a list	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain, control = list(a = 1),  :: `control` must be a multigrain control object, not a list.		0.01
+opt | verbose bad	error	rlang_error	graph_optimise_gsd(pv, graph_constraint_free(2), gain, verbose = "loud",  :: `verbose` must be one of "info", "detail", or "silent", not "loud".		0.01
+opt | extra dot argument	error	rlib_error_dots_nonempty	graph_optimise_gsd(pv, graph_constraint_free(2), gain, foo = 1,  :: `...` must be empty. ✖ Problematic argument: • foo = 1		0.01
+opt | gain constant	ok		numeric : 1		0.24
+opt | one simulation	ok		numeric : 1 0		0.01
+opt | all weights fixed but one edge	error	rlang_error	graph_constraint(hyp_constraint = c(0.5, 0.5), trans_constraint = matrix(c(0,  :: At least one incomplete transition matrix row has a single optimisable (i.e. `NA`) value. ℹ For a more detailed diagnosis run `graph_constraint()` with `diagnose =   TRUE`.		0.02
+ts | string objective	ok		character : r1 + r2		3.24
+ts | t only	ok		integer : 2		3.22
+ts | table not supplied	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `d` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.05
+ts | table length vs K	error	rlang_error	trial_success_gsd(d(t1) + r2, d = c(1, 0.5), K = 3) :: `K` is 3 but the discount table `d` has length 2; they must agree.		0.02
+ts | K 0	error	rlang_error	trial_success_gsd(r1 + r2, K = 0) :: `K` must be a whole number larger than or equal to 1, not the number 0.		0.02
+ts | K negative	error	rlang_error	trial_success_gsd(r1 + r2, K = -1) :: `K` must be a whole number larger than or equal to 1, not the number -1.		0.02
+ts | K 1.5	error	rlang_error	trial_success_gsd(r1 + r2, K = 1.5) :: `K` must be a whole number, not the number 1.5.		0.02
+ts | table with NA	error	rlang_error	trial_success_gsd(d(t1) + r2, d = c(1, NA)) :: Discount table `d` must be a non-empty numeric vector of finite values, not a double vector.		0.02
+ts | table with Inf	error	rlang_error	trial_success_gsd(d(t1) + r2, d = c(1, Inf)) :: Discount table `d` must be a non-empty numeric vector of finite values, not a double vector.		0.01
+ts | table empty	error	rlang_error	trial_success_gsd(d(t1) + r2, d = numeric(0)) :: Discount table `d` must be a non-empty numeric vector of finite values, not an empty numeric vector.		0.02
+ts | table character	error	rlang_error	trial_success_gsd(d(t1) + r2, d = c("a", "b")) :: Discount table `d` must be a non-empty numeric vector of finite values, not a character vector.		0.01
+ts | table unnamed	error	rlang_error	trial_success_gsd(d(t1) + r2, c(1, 0.5)) :: Every discount table passed through `...` must be named. ℹ The name is how the table is applied in `objective`, e.g. `d = c(1, 0.75)`   for `d(t1)`.		0.02
+ts | table named r1	error	rlang_error	trial_success_gsd(r1(t1) + r2, r1 = c(1, 0.5)) :: Discount table name "r1" is not allowed. ℹ A name must start with a letter, contain only letters, digits and   underscores, and must not be a rejection indicator (`r1`, ...), a decision   time (`t1`, ...), `and` or `or`.		0.02
+ts | table named t1	error	rlang_error	trial_success_gsd(t1(t2) + r1, t1 = c(1, 0.5)) :: Discount table name "t1" is not allowed. ℹ A name must start with a letter, contain only letters, digits and   underscores, and must not be a rejection indicator (`r1`, ...), a decision   time (`t1`, ...), `and` or `or`.		0.03
+ts | table named exp	ok		integer : 2		3.42
+ts | table applied to a constant	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: A discount table must be applied to a single decision time symbol (`t1`, `t2`, ...), not as `d(1)`. ℹ For example `d(t1)`.		0.04
+ts | table applied to r1	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: A discount table must be applied to a single decision time symbol (`t1`, `t2`, ...), not as `d(r1)`. ℹ For example `d(t1)`.		0.05
+ts | table applied to t1 + 1	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: A discount table must be applied to a single decision time symbol (`t1`, `t2`, ...), not as `d(t1 + 1)`. ℹ For example `d(t1)`.		0.04
+ts | nested table	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: A discount table must be applied to a single decision time symbol (`t1`, `t2`, ...), not as `d(d(t1))`. ℹ For example `d(t1)`.		0.02
+ts | division by zero	ok		multigrain_trial_success_gsd List of 6  $ func     :function (t)  		3.37
+ts | exp()	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `exp` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.03
+ts | max()	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `max` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.03
+ts | ifelse()	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `ifelse` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.03
+ts | if()	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `if` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.03
+ts | %in%	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `%in%` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.04
+ts | NA constant	ok		multigrain_trial_success_gsd List of 6  $ func     :function (t)  		3.22
+ts | TRUE constant	ok		character : r1 + TRUE * r2		3.35
+ts | t0	ok		multigrain_trial_success_gsd List of 6  $ func     :function (t)  		3.36
+ts | power operator	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `^` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.03
+ts | modulo	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `%%` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.03
+ts | unary minus on t	ok		character : -t1 + r2		3.13
+ts | comparison of t	ok		character : (t1 < t2) + r2		3.52
+ts | single bar or	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `|` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.04
+ts | single ampersand	error	rlang_error	.gsd_gain_validate_call(expr, table_names) :: Unsupported operator or function `&` in the trial success expression. ℹ Only arithmetic (`+`, `-`, `*`, and `/`), logical (`&&` and `||`), comparison   (`==`, `!=`, `<`, `<=`, `>`, and `>=`), parentheses and the discount tables   passed through `...` are allowed.		0.03
+ts | word and in a string	ok		character : r1 and r2		3.49
+ts | empty string	error	rlang_error	count_unique_indices_gsd(expr_string) :: `objective` must reference at least one rejection indicator (`r1`, `r2`, ...) or decision time (`t1`, `t2`, ...). Expression `` contains none.		0.05
+ts | NULL	error	rlang_error	trial_success_gsd(NULL) :: `objective` must be an expression or a character string, not NULL.		0.02
+ts | number only	error	rlang_error	trial_success_gsd(5) :: `objective` must be an expression or a character string, not a number.		0.02
+ts | verbose bad	error	rlang_error	trial_success_gsd(r1 + r2, verbose = "loud") :: `verbose` must be one of "info", "detail", or "silent", not "loud".		0.03
+ts | extra unused table	ok		integer : 2		3.36
+ts | two tables different K	error	rlang_error	trial_success_gsd(d(t1) + e(t2), d = c(1, 0.5), e = c(1, 0.5,  :: All discount tables must have the same length (one value per analysis). ✖ Lengths supplied: d = 2, e = 3.		0.02
+sr | uses t1	error	rlang_error	stopping_rule_gsd(t1 == 1) :: Symbol `t1` cannot be used in a stopping condition: decision times are not available to a stopping rule. ℹ A condition is evaluated at each interim analysis on the rejection indicators   `r1`, `r2`, ...		0.03
+sr | uses table	error	rlang_error	stopping_rule_gsd(d(t1)) :: Unsupported operator or function `d` in a stopping condition. ℹ Only logical (`&&`, `||`, and `!`), comparison (`==`, `!=`, `<`, `<=`, `>`,   and `>=`) and arithmetic (`+`, `-`, `*`, and `/`) operators and parentheses   are allowed. • There are no discount tables in a stopping rule.		0.03
+sr | string incomplete	error	rlang_error	stopping_rule_gsd("r1 and") :: Could not parse the stopping condition "r1 and". Caused by error in `str2lang()`: ! <text>:2:0: unexpected end of input 1: r1 &&    ^		0.03
+sr | empty list	error	rlang_error	stopping_rule_gsd(list()) :: `condition` must hold at least one condition, not an empty `list()`.		0.02
+sr | NULL	error	rlang_error	stopping_rule_gsd(NULL) :: `condition` must be an expression, a string, a call to `list()` or a character vector, not NULL.		0.02
+sr | no r	error	rlang_error	stopping_rule_gsd(5) :: Stopping condition `5` must refer to at least one rejection indicator (`r1`, `r2`, ...). ℹ A condition that refers to none cannot depend on the trial.		0.02
+sr | numeric result	error	rlang_error	 :: Stopping condition `r1 + r2` must return a single `TRUE` or `FALSE`. ✖ At interim 1 with rejection set none it returned the number 0.		0.04
+sr | r0	error	rlang_error	stopping_rule_gsd(r0) :: Symbol `r0` in a stopping condition is not a rejection indicator (`r1`, `r2`, ...). ℹ Use `!!` to inject values from the calling environment, e.g.   `stopping_rule_gsd(r1 + r2 >= !!r0)`.		0.03
+sr | r17	ok		integer : 17		0
+sr | r17 on m 2	error	rlang_error	 :: `stopping_rule` refers to hypothesis `r17` but `pvals` holds m = 2 hypotheses.		0.03
+sr | comparison r1 > 0.5	ok		numeric : 0.125 0.875		0
+sr | character vector 2 on K 2	ok		numeric : 0.125 0.875	The final analysis always ends the trial; the last condition of `stopping_rule`, `r2`, is ignored. ℹ `pvals` holds K = 2 analyses. A rule gives one condition per interim   analysis.	0.01
+sr | single bar	error	rlang_error	stopping_rule_gsd(r1 | r2) :: Unsupported operator or function `|` in a stopping condition. ℹ Only logical (`&&`, `||`, and `!`), comparison (`==`, `!=`, `<`, `<=`, `>`,   and `>=`) and arithmetic (`+`, `-`, `*`, and `/`) operators and parentheses   are allowed. • There are no discount tables in a stopping rule.		0.03
+sr | function call	error	rlang_error	stopping_rule_gsd(any(r1, r2)) :: Unsupported operator or function `any` in a stopping condition. ℹ Only logical (`&&`, `||`, and `!`), comparison (`==`, `!=`, `<`, `<=`, `>`,   and `>=`) and arithmetic (`+`, `-`, `*`, and `/`) operators and parentheses   are allowed. • There are no discount tables in a stopping rule.		0.03
+sr | NA	ok		multigrain_stopping_rule_gsd List of 4  $ conditions:List of 1		0
+sr | missing argument	error	rlang_error	stopping_rule_gsd() :: `condition` is absent but must be supplied.		0.01
+hsd | id NA	error	rlang_error	sf_hsd_opt(id = NA_character_) :: `id` must be `NULL` or a single non-missing string or number.		0.01
+hsd | id numeric	ok		character : 1		0
+hsd | id length 2	error	rlang_error	sf_hsd_opt(id = c("a", "b")) :: `id` must be `NULL` or a single non-missing string or number.		0.02
+hsd | bounds reversed	error	rlang_error	sf_hsd_opt(bounds = c(1, -4)) :: The lower bound in `bounds` must be below the upper bound, not 1 and -4.		0.02
+hsd | bounds equal	error	rlang_error	sf_hsd_opt(bounds = c(-1, -1)) :: The lower bound in `bounds` must be below the upper bound, not -1 and -1.		0.02
+hsd | bounds wide	error	rlang_error	sf_hsd_opt(bounds = c(-40, 40)) :: The lower bound in `bounds` must be at least -10, not -40.		0.02
+hsd | bounds NA	error	rlang_error	sf_hsd_opt(bounds = c(NA, 1)) :: `bounds` must be a finite numeric vector of length 2.		0.01
+hsd | bounds length 3	error	rlang_error	sf_hsd_opt(bounds = c(-4, 0, 1)) :: `bounds` must be a finite numeric vector of length 2.		0.02
+hsd | step 0.1	error	rlang_error	sf_hsd_opt(step = 0.1) :: `step` must be one of 0.5, 0.25, or 0.125. ℹ Binary fractions keep every lattice node exact.		0.02
+hsd | step 0	error	rlang_error	sf_hsd_opt(step = 0) :: `step` must be one of 0.5, 0.25, or 0.125. ℹ Binary fractions keep every lattice node exact.		0.02
+hsd | start outside	error	rlang_error	sf_hsd_opt(bounds = c(-4, 1), start = 3) :: `start` must lie inside `bounds` [-4, 1], not 3.		0.02
+hsd | start off lattice	ok		function of class multigrain_sf_hsd_opt/function		0
+hsd | start NA	error	rlang_error	sf_hsd_opt(start = NA) :: `start` must be `NULL` or a single finite number.		0.02
+res | value off lattice	error	rlang_error	resolve_pvalues_gsd(spec, 0.3) :: `spending_param` value 0.3 for gamma is not a node of its lattice. ℹ The nearest nodes are 0 and 0.5; the lattice runs from -2 to 1 in steps of   0.5.		0.02
+res | value NA	error	rlang_error	resolve_pvalues_gsd(spec, NA) :: `spending_param` must be 1 finite number, one per spending parameter ("gamma").		0.03
+res | two values for one parameter	error	rlang_error	resolve_pvalues_gsd(spec, c(0, 0.5)) :: `spending_param` must be 1 finite number, one per spending parameter ("gamma").		0.03
+res | wrong name	error	rlang_error	resolve_pvalues_gsd(spec, c(zzz = 0)) :: The names of `spending_param` must be the spending parameter names. ✖ Expected "gamma", got "zzz".		0.03
+res | character value	error	rlang_error	resolve_pvalues_gsd(spec, "0") :: `spending_param` must be 1 finite number, one per spending parameter ("gamma").		0.02
+res | list value	error	rlang_error	resolve_pvalues_gsd(spec, list(0)) :: `spending_param` must be 1 finite number, one per spending parameter ("gamma").		0.02
+res | not a spec	error	rlang_error	resolve_pvalues_gsd(pv, 0) :: `spec` must be a multigrain_pvals_gsd_spec object (see sf_hsd_opt()), not a <multigrain_pvals_gsd> object.		0.02
+res | missing value	error	simpleError	resolve_pvalues_gsd(spec) :: argument "spending_param" is missing, with no default		0
+fs | calc_ncp power 1	ok		numeric : Inf		0
+fs | calc_ncp power 0	ok		numeric : -Inf		0
+fs | calc_ncp alpha 0	ok		numeric : Inf		0
+fs | calc_ncp vector	ok		numeric : 2.802 3.242		0
+fs | graph_random 1	error	rlang_error	graph_constraint_free(m) :: `num_hyp` must be a whole number larger than or equal to 2, not the number 1.		0.02
+fs | graph_random 0	error	rlang_error	graph_constraint_free(m) :: `num_hyp` must be a whole number larger than or equal to 2, not the number 0.		0.02
+fs | graph_random 2.5	error	rlang_error	graph_random(2.5) :: `m` must be a whole number or `NULL`, not the number 2.5.		0.02
+fs | is_graph_valid weight 1.2	ok		logical : FALSE	`hyp_weight` contains elements outside the interval [0, 1].	0
+fs | normalise_sum all zero	ok		numeric : 0 0		0
+fs | constraint names duplicated	ok		multigrain_graph_constraint List of 2  $ hyp_constraint  : Named num [1:2] NA NA		0
+fs | constraint num_hyp 1	error	rlang_error	graph_constraint_free(1) :: `num_hyp` must be a whole number larger than or equal to 2, not the number 1.		0.02
+fs | constraint num_hyp 30	ok		integer : 30 30		0
+fs | calc_power_pvals on gsd object	error	rlang_error	calc_power_pvals(pv, w, G) :: `pvals` must be a double matrix, not a <multigrain_pvals_gsd> object.		0.02
+fs | graph_optimise on gsd object	error	rlang_error	graph_optimise(pv, graph_constraint_free(2), gain_fs, global_search = FALSE) :: `pvals` must be a double matrix, not a <multigrain_pvals_gsd> object.		0.01
+print | pvals_gsd	ok		integer : 7		0
+print | spec	ok		integer : 13		0
+print | gsd gain	ok		integer : 4		0
+print | rule	ok		integer : 4		0
+print | summary pvals_gsd	ok		integer : 17		0.01
+print | summary spec	ok		integer : 18		0
+print | power result	ok		integer : 32		0
+print | optimisation result	ok		integer : 17 52		0.01
+print | plot of gsd optimisation	ok		character : ggraph		3.18
+print | format of pvals_gsd	ok		character : character		0
+print | as.array of pvals_gsd	ok		integer : 9		0
+print | subsetting pvals_gsd	ok		character : list		0

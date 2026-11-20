@@ -1,0 +1,18 @@
+designs 250, trials 500000, trials whose decision times differ: 0 (0%)
+largest relative distance to a boundary in a differing trial: -Inf 
+Warning message:
+In max(res$max_near_mismatch, na.rm = TRUE) :
+  no non-missing arguments to max; returning -Inf
+every trial recorded once: TRUE   local_power agrees with the recorded times: TRUE 
+         kind designs trials mismatches
+       common     123 246000          0
+ early_mature      56 112000          0
+   late_start      71 142000          0
+         rule designs mismatches
+         none      81          0
+     r1 && r2      34          0
+    r2 && !r1      40          0
+ r1 + r2 >= 2      37          0
+           r1      33          0
+     r1 || r2      25          0
+exit 0

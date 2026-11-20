@@ -1,0 +1,16 @@
+(a) 200 node comparisons: largest difference 0; NA pattern identical in all: TRUE
+(b) reported gain 0.7131400000, recomputed 0.7131400000; profile rows: largest |gain - recomputed| 1.1e-15, |gain_fixed_graph - recomputed| 1e-15
+(c) joint: gamma -2.5, gain 0.71314 | brute force: best gamma -2.5, gain 0.71314; joint minus brute-force best 0
+   gamma best_gain profile_gain profile_minus_fresh
+1:  -3.0 0.7129800    0.7129333       -4.666667e-05
+2:  -2.5 0.7131400    0.7131400       -9.992007e-16
+3:  -2.0 0.7128333    0.7128000       -3.333333e-05
+4:  -1.5 0.7121400    0.7121400       -7.771561e-16
+5:  -1.0 0.7110667    0.7110667       -3.330669e-16
+6:  -0.5 0.7094133    0.7094067       -6.666667e-06
+7:   0.0 0.7082867    0.7082333       -5.333333e-05
+8:   0.5 0.7061200    0.7061200       -1.110223e-16
+9:   1.0 0.7042400    0.7042267       -1.333333e-05
+(d) same seed, same result: TRUE; 1 and 2 threads, same result: TRUE; building a spec draws no random numbers: TRUE
+(e) with the rule r1: gamma 0, reported gain 0.6949333333, recomputed with the rule 0.6949333333
+exit 0

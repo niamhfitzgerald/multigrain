@@ -1,0 +1,25 @@
+designs refused by the transform (entry C1): 3
+designs 157 (90 global nulls), 40,000 trials each
+largest familywise error relative to alpha: 0.0270 at alpha 0.025 (z = 2.59); designs above alpha + 3 SE: 0
+ alpha global designs mean_ratio  max_z
+ 0.010  FALSE      14      0.649   0.05
+ 0.010   TRUE      18      0.980   1.96
+ 0.025  FALSE      20      0.654   1.70
+ 0.025   TRUE      34      0.954   2.59
+ 0.050  FALSE      18      0.621  -0.53
+ 0.050   TRUE      16      0.910   2.06
+ 0.200  FALSE      15      0.678 -16.60
+ 0.200   TRUE      22      0.931   1.04
+ design m K alpha nulls                           spending look_back     rule
+     88 2 3 0.025     2                 sfHSD(-4),sfHSD(1)        01     none
+    115 2 5 0.050     2                sfHSD(-10),sfHSD(2)        00 r1 || r2
+     31 4 4 0.010     4 sfLDOF,sfHSD(1),sfHSD(-4),sfHSD(1)      1101 r1 && r2
+     40 3 2 0.025     1            sfLDOF,sfHSD(-4),sfLDOF       100 r1 && r2
+     61 3 4 0.010     3        sfHSD(1),sfHSD(-4),sfHSD(1)       000       r1
+     fwer    z
+ 0.027025 2.59
+ 0.052250 2.06
+ 0.010975 1.96
+ 0.026325 1.70
+ 0.010800 1.61
+exit 0

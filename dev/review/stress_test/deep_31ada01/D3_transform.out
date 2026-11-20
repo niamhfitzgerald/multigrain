@@ -1,0 +1,29 @@
+designs 120, repeated p-values compared 4967, transform errors 1
+ grid    n median_abs_rel max_abs_rel share_below_exact most_negative
+   64 1668        2.4e-05     6.6e-01              0.46      -6.6e-01
+  256 1620        1.3e-06     3.8e-02              0.57      -3.8e-02
+ 1024 1679        1.4e-07     7.7e-06              0.70      -7.7e-06
+  alpha    n max_abs_rel most_negative
+ 0.0001  900       0.660       -0.6600
+ 0.0010  636       0.140       -0.1400
+ 0.0250 1032       0.038       -0.0380
+ 0.0500 1248       0.001       -0.0010
+ 0.2000 1151       0.003       -0.0018
+ first    n max_abs_rel most_negative
+  TRUE 1428      0.6600       -0.6600
+ FALSE 3539      0.0022       -0.0018
+       sf alpha grid K
+1: sfLDOF 1e-04  256 5
+                                                                                                                        error
+1: The boundary table cannot be inverted.\nx Fewer than two distinct positive boundaries were found.\ni Try a larger `grid_si
+by raw p-value band (for C4):
+                          band grid    n max_abs_rel most_negative
+ raw p < 1e-12, first analysis   64   33     6.6e-01      -6.6e-01
+ raw p < 1e-12, first analysis  256   16     3.8e-02      -3.8e-02
+ raw p < 1e-12, first analysis 1024    8     7.1e-15      -7.1e-15
+ raw p < 1e-12, later analyses   64    8     6.3e-04      -3.3e-04
+ raw p < 1e-12, later analyses 1024    5     5.5e-07      -5.5e-07
+                raw p >= 1e-12   64 1627     3.0e-03      -1.8e-03
+                raw p >= 1e-12  256 1604     1.0e-04      -8.8e-05
+                raw p >= 1e-12 1024 1666     7.7e-06      -7.7e-06
+exit 0

@@ -2,9 +2,9 @@
 
 Input that should be refused is accepted, valid input is refused, or the error raised does not lead to the mistake.
 
-38 entries. Back to the [index](README.md).
+40 entries. Back to the [index](README.md).
 
-Contents: [C1](#C1), [C2](#C2), [C3](#C3), [C4](#C4), [C5](#C5), [C6](#C6), [C7](#C7), [C8](#C8), [C9](#C9), [C10](#C10), [C11](#C11), [C12](#C12), [C13](#C13), [C14](#C14), [C15](#C15), [C16](#C16), [C17](#C17), [C18](#C18), [C19](#C19), [C20](#C20), [C21](#C21), [C22](#C22), [C23](#C23), [ENV05](#ENV05), [MEM3](#MEM3), [DOC12](#DOC12), [DOC14](#DOC14), [DOC17b](#DOC17b), [DOC17c](#DOC17c), [DOC17d](#DOC17d), [DOC17f](#DOC17f), [DOC17g](#DOC17g), [SR1](#SR1), [SR2](#SR2), [UT2](#UT2), [UT3](#UT3), [HS3](#HS3), [HS6](#HS6)
+Contents: [C1](#C1), [C2](#C2), [C3](#C3), [C4](#C4), [C5](#C5), [C6](#C6), [C7](#C7), [C8](#C8), [C9](#C9), [C10](#C10), [C11](#C11), [C12](#C12), [C13](#C13), [C14](#C14), [C15](#C15), [C16](#C16), [C17](#C17), [C18](#C18), [C19](#C19), [C20](#C20), [C21](#C21), [C22](#C22), [C23](#C23), [ENV05](#ENV05), [MEM3](#MEM3), [DOC12](#DOC12), [DOC14](#DOC14), [DOC17b](#DOC17b), [DOC17c](#DOC17c), [DOC17d](#DOC17d), [DOC17f](#DOC17f), [DOC17g](#DOC17g), [SR1](#SR1), [SR2](#SR2), [UT2](#UT2), [UT3](#UT3), [HS3](#HS3), [HS6](#HS6), [DS2](#DS2), [DS3](#DS3)
 
 ---
 
@@ -2569,3 +2569,144 @@ EXPECTED: for 5, a message that the value is outside the lattice and the nearest
 ```
 
 **Potential fix.** Drop the `NA` and say that the value is outside the lattice: "It is outside the lattice; the nearest node is 0". The message for a value below the lattice gains the same words, and its snapshot changes.
+
+---
+
+<a name="DS2"></a>
+## DS2. alpha = 0 and alpha = 1 are accepted as levels, and the group sequential transform then fails inside gsDesign or base R, or runs at a level of 1
+
+- Functions: simulate_pvalues(), simulate_pvalues_gsd(), transform_pvalues_gsd(), calc_ncp()
+- Branches: main and gsd-build (simulate_pvalues_gsd() and transform_pvalues_gsd() on gsd-build only)
+- Potential fix: suggested, not implemented
+
+**What the error is.** These functions check `alpha` with `rlang::check_number_decimal(alpha, min = 0, max = 1)`, which allows both ends. Neither end is a significance level. `simulate_pvalues()` and `simulate_pvalues_gsd()` accept them and return p-values that are all 0 (`alpha = 0`) or all 1 (`alpha = 1`), since `calc_ncp()` returns an infinite non-centrality parameter at either end. What `transform_pvalues_gsd()` does depends on the spending function. With a gsDesign function such as `sfLDOF` it stops with gsDesign's "alpha not on interval (0, Inf)" or "probhi not on interval [0, 1)". With a function of the user's own, `a * pmin(t, 1)` in the script, `alpha = 0` stops with base R's "'to' must be a finite number", and `alpha = 1` is accepted: the repeated p-values are computed at a level of 1. None of these messages names multigrain; only gsDesign's names `alpha`, for its own argument. [B3_power](2_misleading_or_broken_contract.md#B3_power) covers `calc_power_pvals()` and `graph_optimise()`; its tested fix (patches 4 and 59) already refuses both ends there.
+
+**What causes it.** The checks are at `R/sim_pvals.R:68`, `R/sim_pvals_gsd.R:95`, `R/transform_pvalues_gsd.R:118` and `R/utils.R:57` (`calc_ncp()`). `calc_ncp()` returns `qnorm(1 - alpha) - qnorm(1 - power)` (`R/utils.R:59`), which is `Inf` at `alpha = 0` and `-Inf` at `alpha = 1`; both simulators take their non-centrality parameter from it (`R/sim_pvals.R:73`, `R/sim_pvals_gsd.R:127`). In the transform, `.gsd_check_spending()` calls the spending function at the level (`R/transform_pvalues_gsd.R:160`, through `.gsd_spend()` at line 433), which is where `sfLDOF` refuses `alpha = 0`. The boundary grid runs from `log(gsd_grid_min)` to `log(alpha)` (lines 358-362), so `alpha = 0` stops in `seq()` when the spending function lets it through. At `alpha = 1`, `gsDesign::gsBound1()` refuses the increments `probhi = diff(c(0, cum_spend))` of `sfLDOF` (lines 374-378); a function that spends up to 1 without error passes. `graph_optimise()` has the same check (`R/optimisation.R:132`) [read], which B3_power's fix replaces. On `main` (`508d0b7`) the checks in `R/sim_pvals.R:68` and `R/utils.R:57` are the same [read]. There the script's two `simulate_pvalues()` lines give the same output; its `simulate_pvalues_gsd()` lines report that the function does not exist, and it stops at the next group sequential call. On `gsd-build` (`8af8adb`) the checks are at `R/sim_pvals_gsd.R:95` and `R/transform_pvalues_gsd.R:102` [read].
+
+**Code showing the problem** ([`reprex/DS2.R`](reprex/DS2.R)) (a few seconds):
+
+```r
+# DS2: alpha is checked against [0, 1] with both ends allowed, so a level of 0 or 1 is accepted, or fails inside gsDesign
+# Run: Rscript DS2.R   (a few seconds)
+# fmt: skip file
+suppressMessages(library(multigrain))
+try_it <- function(label, expr) cat(sprintf("%-50s %s\n", label, tryCatch({ v <- expr; sprintf("values from %g to %g", min(v), max(v)) },
+                                    error = function(e) paste("error:", gsub("\\s+", " ", conditionMessage(e))))))
+for (a in c(0, 1)) try_it(sprintf("simulate_pvalues(alpha = %g):", a), simulate_pvalues(c(0.9, 0.8), alpha = a, nsim = 5))
+for (a in c(0, 1)) try_it(sprintf("simulate_pvalues_gsd(alpha = %g):", a), simulate_pvalues_gsd(c(0.9, 0.8), alpha = a, info_frac = c(0.5, 1), nsim = 5))
+set.seed(1)
+raw <- simulate_pvalues_gsd(c(0.9, 0.8), info_frac = c(0.5, 1), nsim = 50)
+of  <- function(a, t) gsDesign::sfLDOF(a, t)$spend
+lin <- function(a, t) a * pmin(t, 1)
+for (a in c(0, 1)) try_it(sprintf("transform_pvalues_gsd(alpha = %g), sfLDOF:", a), transform_pvalues_gsd(raw, spending = of, alpha = a)$pvals)
+for (a in c(0, 1)) try_it(sprintf("transform_pvalues_gsd(alpha = %g), a * pmin(t, 1):", a), transform_pvalues_gsd(raw, spending = lin, alpha = a)$pvals)
+for (a in c(0, 1)) try_it(sprintf("calc_ncp(0.9, alpha = %g):", a), calc_ncp(0.9, alpha = a))
+cat("EXPECTED: an error from multigrain naming alpha, which must be greater than 0 and less than 1\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+simulate_pvalues(alpha = 0):                       values from 0 to 0
+simulate_pvalues(alpha = 1):                       values from 1 to 1
+simulate_pvalues_gsd(alpha = 0):                   values from 0 to 0
+simulate_pvalues_gsd(alpha = 1):                   values from 1 to 1
+transform_pvalues_gsd(alpha = 0), sfLDOF:          error: alpha not on interval (0, Inf)
+transform_pvalues_gsd(alpha = 1), sfLDOF:          error: probhi not on interval [0, 1)
+transform_pvalues_gsd(alpha = 0), a * pmin(t, 1):  error: 'to' must be a finite number
+transform_pvalues_gsd(alpha = 1), a * pmin(t, 1):  values from 4.66213e-08 to 0.845137
+calc_ncp(0.9, alpha = 0):                          values from Inf to Inf
+calc_ncp(0.9, alpha = 1):                          values from -Inf to -Inf
+EXPECTED: an error from multigrain naming alpha, which must be greater than 0 and less than 1
+```
+
+**Potential fix.** One helper, called in place of each of these checks. It is the `alpha` part of B3_power's `.check_pvals_alpha()`, which already makes this check for `calc_power_pvals()` and `graph_optimise()`, so the two could share it:
+
+```r
+.check_alpha <- function(alpha, arg = rlang::caller_arg(alpha), call = rlang::caller_env()) {
+    rlang::check_number_decimal(alpha, arg = arg, call = call)
+    if (!(alpha > 0 && alpha < 1)) {
+        cli::cli_abort(
+            "{.arg {arg}} must be greater than 0 and less than 1, not {alpha}.",
+            call = call
+        )
+    }
+}
+```
+
+Suggested only; not tried in a build or a session. The check in `graph_optimise_gsd()` (`R/check_gsd.R:142`) bounds `alpha` by the level of the p-values, so it would follow from the transform.
+
+---
+
+<a name="DS3"></a>
+## DS3. A gain that is 0/0 in some trials compiles without a word; its power is NaN and the optimisers stop inside GA or nloptr
+
+- Functions: trial_success(), trial_success_gsd(), calc_power_pvals(), calc_power_pvals_gsd(), graph_optimise(), graph_optimise_gsd()
+- Branches: main and gsd-build (the group sequential functions on gsd-build only)
+- Potential fix: tested in a session (the two objective closures replaced with `assignInNamespace()`), not in a build; the test suite was not run with it
+
+**What the error is.** A gain that divides by a decision time or a rejection indicator is accepted. `trial_success_gsd(r1 / t1 + r2 / t2)` reads naturally as "worth 1/k if rejected at analysis k", and `trial_success(r1 / (r1 + r2))` as a share. Each is 0/0 in the trials where the hypothesis (or both) is not rejected, so the mean over trials is NaN. `calc_power_pvals_gsd()` returns that NaN with no message. `graph_optimise_gsd()` and `graph_optimise()` print two warnings from inside GA ("no non-missing arguments to max; returning -Inf") and stop with R's "missing value where TRUE/FALSE needed". With `global_search = FALSE` they stop with nloptr's "objective in x0 returns NA". None of these messages names multigrain, the gain, or the division. The help documents discount tables (`d(t1)`) for time-dependent value, so the risk is a user who writes the discount by hand. Seen on `main` (`508d0b7`) for the fixed-sample case, with the same output.
+
+**What causes it.** Neither constructor can see that a denominator may be 0, and nothing checks the value afterwards. The objective closures return the gain as computed (`R/objective_function.R:87`, `R/objective_function_gsd.R:106`), and `GA::ga()` (3.2.5) then fails on its own `if (object@run >= run)` once every fitness is NaN. nloptr (2.0.3) refuses a missing objective at the start point. `calc_power_pvals()` and `calc_power_pvals_gsd()` return the compiled function's value unchecked (`R/calc_power.R:257`, `R/calc_power_gsd.R:393-395`). On `main` the same lines are `R/objective_function.R:87` and `R/calc_power.R:223` [read]. On `gsd-build` (`8af8adb`) they are `R/objective_function.R:87`, `R/objective_function_gsd.R:106`, `R/calc_power.R:248` and `R/calc_power_gsd.R:393-395` [read].
+
+**Code showing the problem** ([`reprex/DS3.R`](reprex/DS3.R)) (about 10 s):
+
+```r
+# DS3: a gain that is 0/0 in some trials compiles without a word; power is NaN and the optimisers stop inside GA or nloptr
+# Run: Rscript DS3.R   (about 10 s)
+# fmt: skip file
+suppressMessages(library(multigrain))
+options(multigrain.verbosity = "silent")
+said <- function(expr) tryCatch(withCallingHandlers(expr, warning = function(w) {
+    cat("  warning:", conditionMessage(w), "\n"); invokeRestart("muffleWarning") }),
+    error = function(e) cat("  error:", gsub("\\s+", " ", conditionMessage(e)), "\n"))
+G <- matrix(c(0, 1, 1, 0), 2)
+set.seed(1)
+raw <- simulate_pvalues_gsd(c(0.9, 0.6), corr_matrix = matrix(c(1, 0.5, 0.5, 1), 2), info_frac = c(0.5, 1), nsim = 4000)
+pv <- transform_pvalues_gsd(raw, spending = function(a, t) gsDesign::sfLDOF(a, t)$spend)
+gain <- trial_success_gsd(r1 / t1 + r2 / t2)     # "worth 1/k if rejected at analysis k"; 0/0 when not rejected
+cat("calc_power_pvals_gsd(), gain:", calc_power_pvals_gsd(pv, c(0.5, 0.5), G, custom_power = list(g = gain))$g, "\n")
+cat("graph_optimise_gsd():\n");                        set.seed(2); said(graph_optimise_gsd(pv, graph_constraint_free(2), gain))
+cat("graph_optimise_gsd(global_search = FALSE):\n");   set.seed(2); said(graph_optimise_gsd(pv, graph_constraint_free(2), gain, global_search = FALSE))
+p <- simulate_pvalues(c(0.9, 0.6), corr_matrix = matrix(c(1, 0.5, 0.5, 1), 2), nsim = 4000)
+cat("graph_optimise() with trial_success(r1 / (r1 + r2)):\n")
+set.seed(2); said(graph_optimise(p, graph_constraint_free(2), trial_success = trial_success(r1 / (r1 + r2))))
+cat("EXPECTED: an error from multigrain that the gain is not a number in some trials, for example when H1 is not rejected\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+calc_power_pvals_gsd(), gain: NaN
+graph_optimise_gsd():
+  warning: no non-missing arguments to max; returning -Inf
+  warning: no non-missing arguments to max; returning -Inf
+  error: missing value where TRUE/FALSE needed
+graph_optimise_gsd(global_search = FALSE):
+  error: objective in x0 returns NA
+graph_optimise() with trial_success(r1 / (r1 + r2)):
+  warning: no non-missing arguments to max; returning -Inf
+  warning: no non-missing arguments to max; returning -Inf
+  error: missing value where TRUE/FALSE needed
+EXPECTED: an error from multigrain that the gain is not a number in some trials, for example when H1 is not rejected
+```
+
+**Potential fix.** Stop when the gain is not a finite number, in both objective closures, with a message that says why it might be ([`deep_31ada01/fix_tests/DS3_fix.R`](deep_31ada01/fix_tests/DS3_fix.R)):
+
+```r
+# DS3 fix: in create_obj_func_gsd(), in place of the closure's last line, power_criterion(res$time)
+# (R/objective_function_gsd.R:106 at 31ada01); in create_obj_func() the same with rej_matrix (R/objective_function.R:87)
+# fmt: skip file
+gain <- power_criterion(res$time)
+if (!is.finite(gain)) {
+    cli::cli_abort(c(
+        "The trial success function gives {gain} for this graph, not a finite number.",
+        i = "A division by a decision time or a rejection indicator that can be 0, \\
+            such as {.code r1 / t1}, gives 0/0 in the trials where that hypothesis \\
+            is not rejected."
+    ), call = NULL)
+}
+gain
+```
+
+Tried in a session on `31ada01` ([`deep_31ada01/fix_tests/DS3_fix_test.R`](deep_31ada01/fix_tests/DS3_fix_test.R)): the code above was put in place of the last line of both closures. The three optimiser calls in the script then stop with this message. A valid gain (`r1 + r2`) gives the same weights, transition matrix and gain before and after the change, with both optimisers. A judgement call: a gain that is finite for some graphs and not for others stops at the first graph where it is not. Suggested, not tried: a warning from `calc_power_pvals()` and `calc_power_pvals_gsd()` when a gain is not finite, and, when `trial_success_gsd()` knows `K`, a check of the gain on every decision-time vector when it is compiled, as its help already tabulates them.

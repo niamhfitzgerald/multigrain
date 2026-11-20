@@ -1,0 +1,22 @@
+K = 6, equal looks               5.3      familywise error 0.0234 (alpha 0.025, SE 0.0011)
+K = 10, equal looks              9.7      familywise error 0.0230 (alpha 0.025, SE 0.0011)
+K = 10, Pocock                   13.2     familywise error 0.0231 (alpha 0.025, SE 0.0011)
+interim at 1%, OF                NA       ERROR: ! in callr subprocess. Caused by error in `.gsd_transform_hyp(matrix(pvals[, i, ], nrow = n_sim, ncol = n_look), ...`: ! The boundary table cannot be inverted.
+interim at 1%, Pocock            1.8      familywise error 0.0257 (alpha 0.025, SE 0.0011)
+interim at 0.1%, Pocock          1.8      familywise error 0.0252 (alpha 0.025, SE 0.0011)
+alpha 1e-4                       3        familywise error 0.0001 (alpha 0.0001, SE 7.1e-05)
+alpha 1e-6                       1.8      familywise error 0.0000 (alpha 1e-06, SE 7.1e-06)
+alpha 0.2                        2.9      familywise error 0.1704 (alpha 0.2, SE 0.0028)
+alpha 0.5                        1.8      familywise error 0.4066 (alpha 0.5, SE 0.0035)
+m = 8, K = 3                     11.1     familywise error 0.0230 (alpha 0.025, SE 0.0011)
+m = 12, K = 2                    10.9     familywise error 0.0219 (alpha 0.025, SE 0.0011)
+m = 16, K = 2, rule              15.6     familywise error 0.0219 (alpha 0.025, SE 0.0011)
+m = 17, K = 2, rule              NA       ERROR: ! in callr subprocess. Caused by error in `(function (spec) ...`: ! A stopping rule is evaluated on every rejection set, 2^m \ rows per interim; m = 17 gives 131072 rows.
+every hypothesis late            1.7      familywise error 0.0233 (alpha 0.025, SE 0.0011)
+different schedules              2.1      familywise error 0.0237 (alpha 0.025, SE 0.0011)
+grid_size 4096                   11       familywise error 0.0249 (alpha 0.025, SE 0.0011)
+grid_size 64                     0.2      familywise error 0.0249 (alpha 0.025, SE 0.0011)
+nsim 1e6, m 4, K 3               8.5      disjunctive power 0.9281
+joint search, m 5, K 3, rule     60       gain 3.2453 at -4
+joint search, m 3, lattice 97    187.8    gain 2.2247 at -9.5
+exit 0

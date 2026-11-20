@@ -1,0 +1,7 @@
+reprex/DS1.R, info_frac left out:                    accepted
+reprex/DS1.R, info_frac = c(0.8, 1):                 error: `info_frac` differs from the info_frac attribute of `pvals`. x The p-values were simulated at different information fractions, so the boundaries would not match their correlation. i Leave `info_frac` out to use the attribute, or remove the attribute if the p-values come from elsewhere.
+reprex/DS1.R, info_frac = c(0.1, 1):                 error: `info_frac` differs from the info_frac attribute of `pvals`. x The p-values were simulated at different information fractions, so the boundaries would not match their correlation. i Leave `info_frac` out to use the attribute, or remove the attribute if the p-values come from elsewhere.
+matrix attribute, the same info_frac given:          accepted
+matrix attribute, a vector given (the NA differs):   error: `info_frac` differs from the info_frac attribute of `pvals`. x The p-values were simulated at different information fractions, so the boundaries would not match their correlation. i Leave `info_frac` out to use the attribute, or remove the attribute if the p-values come from elsewhere.
+no attribute, info_frac given:                       accepted
+EXPECTED: the three calls whose info_frac differs from the attribute are refused; the other three are accepted

@@ -1,0 +1,5 @@
+get-started.Rmd          knitted     10 s  errors shown 0, warnings shown 0, compile messages 2
+graph_constraint.qmd     knitted      2 s  errors shown 4, warnings shown 0, compile messages 0
+gsd-joint-spending.Rmd   knitted      1 s  errors shown 0, warnings shown 0, compile messages 0
+trial_success.qmd        knitted     24 s  errors shown 0, warnings shown 0, compile messages 7
+exit 0

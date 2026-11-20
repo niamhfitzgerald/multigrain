@@ -1,0 +1,10 @@
+custom_power = list(gain = 3)
+  calc_power_pvals():     Each element of `custom_power` must be a function or a <multigrain_trial_success> object, not a string.
+  calc_power_pvals_gsd(): Each element of `custom_power` must be a function, a <multigrain_trial_success_gsd> object or a <multigrain_trial_success> object, not a string.
+custom_power = list(gain = NULL)
+  calc_power_pvals():     Each element of `custom_power` must be a function or a <multigrain_trial_success> object, not a string.
+  calc_power_pvals_gsd(): Each element of `custom_power` must be a function, a <multigrain_trial_success_gsd> object or a <multigrain_trial_success> object, not a string.
+custom_power = list(gain = TRUE)
+  calc_power_pvals():     Each element of `custom_power` must be a function or a <multigrain_trial_success> object, not a string.
+  calc_power_pvals_gsd(): Each element of `custom_power` must be a function, a <multigrain_trial_success_gsd> object or a <multigrain_trial_success> object, not a string.
+EXPECTED: "not a number", "not NULL" and "not `TRUE`" from both functions

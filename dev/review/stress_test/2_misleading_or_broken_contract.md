@@ -2,9 +2,9 @@
 
 The package does something other than what a careful user would take from the help, in a use that is easy to arrive at.
 
-16 entries. Back to the [index](README.md).
+17 entries. Back to the [index](README.md).
 
-Contents: [B1](#B1), [B2](#B2), [B3_power](#B3_power), [B3_simulators](#B3_simulators), [B4](#B4), [B5](#B5), [B6](#B6), [B7](#B7), [B9](#B9), [ENV02](#ENV02), [ENV03_power](#ENV03_power), [ENV03_spending](#ENV03_spending), [ENV04](#ENV04), [MEM1](#MEM1), [HS1](#HS1), [HS2](#HS2)
+Contents: [B1](#B1), [B2](#B2), [B3_power](#B3_power), [B3_simulators](#B3_simulators), [B4](#B4), [B5](#B5), [B6](#B6), [B7](#B7), [B9](#B9), [ENV02](#ENV02), [ENV03_power](#ENV03_power), [ENV03_spending](#ENV03_spending), [ENV04](#ENV04), [MEM1](#MEM1), [HS1](#HS1), [HS2](#HS2), [DS1](#DS1)
 
 ---
 
@@ -1124,3 +1124,72 @@ EXPECTED: the same plateau at every scale, for example the run of values with di
 ```
 
 **Potential fix.** Define the plateau from the paired standard errors that the profile already holds, for example the run of nodes with `diff <= 2 * se`. Alternatively, give `print()` a `tol` argument and state its units. Either way, print the tolerance used in standard errors as well as in gain units.
+
+---
+
+<a name="DS1"></a>
+## DS1. An info_frac given to transform_pvalues_gsd() replaces the one the simulator attached, with no message, and the type I error is not kept
+
+- Functions: transform_pvalues_gsd()
+- Branches: gsd-build only
+- Potential fix: tested in a session (the function replaced with `assignInNamespace()`), not in a build; the test suite was not run with it
+
+**What the error is.** `simulate_pvalues_gsd()` attaches the information fractions it simulated at as the attribute `info_frac`, and `transform_pvalues_gsd()` uses that attribute when its own `info_frac` is left out. A given `info_frac` replaces the attribute without a message, even when the two differ. The boundaries are then computed for one schedule and applied to p-values whose correlation follows another. In the script, with one hypothesis under the null, an interim at 20% information and Pocock spending, the type I error is 0.0252 with the attribute and 0.0316 with `info_frac = c(0.8, 1)`, against a standard error of 0.0003. Nothing warns. Fractions later than the true ones assume too high a correlation between analyses, so the boundaries are too lenient. Earlier ones make the design conservative: 0.0245 with `c(0.1, 1)`, against 0.0252 with the attribute on the same trials [simulated]. The plausible route is a transform call copied from another design, or the planned fractions passed after simulating at others. The help says only that `info_frac` "Defaults to the `info_frac` attribute of `pvals`".
+
+**What causes it.** `R/transform_pvalues_gsd.R:137-139` reads the attribute only when `info_frac` is `NULL`, and nothing compares the two. The help text is at lines 46-49 (`man/transform_pvalues_gsd.Rd:23-26`). The same code is on `gsd-build` (`8af8adb`, `R/transform_pvalues_gsd.R:121-123`) [read].
+
+**Code showing the problem** ([`reprex/DS1.R`](reprex/DS1.R)) (about 5 s):
+
+```r
+# DS1: info_frac given to transform_pvalues_gsd() replaces the one the simulator attached, without a message
+# Run: Rscript DS1.R   (about 5 s)
+# fmt: skip file
+suppressMessages(library(multigrain))
+pocock <- function(a, t) gsDesign::sfLDPocock(a, t)$spend
+set.seed(1)
+raw <- simulate_pvalues_gsd(0.025, info_frac = c(0.2, 1), nsim = 2e5)    # power = alpha: the global null
+cat("info_frac attached by the simulator:", attr(raw, "info_frac"), "\n")
+ok    <- transform_pvalues_gsd(raw, spending = pocock)
+later <- withCallingHandlers(transform_pvalues_gsd(raw, info_frac = c(0.8, 1), spending = pocock),
+                             warning = function(w) cat("warning:", conditionMessage(w), "\n"),
+                             message = function(m) cat("message:", conditionMessage(m)))
+earlier <- transform_pvalues_gsd(raw, info_frac = c(0.1, 1), spending = pocock)
+err <- function(pv) calc_power_pvals_gsd(pv, hyp_weight = 1, trans_matrix = matrix(0, 1, 1), sum_to_one_constraint = FALSE)$disj_power
+cat(sprintf("type I error at 0.025: %.4f with the simulator's info_frac, %.4f with info_frac = c(0.8, 1), %.4f with c(0.1, 1); standard error %.4f\n",
+            err(ok), err(later), err(earlier), sqrt(0.025 * 0.975 / 2e5)))
+cat("EXPECTED: an error or a warning when info_frac differs from the info_frac attribute of pvals\n")
+```
+
+Output on `gsd-build-spending` (`31ada01`):
+
+```
+info_frac attached by the simulator: 0.2 1
+type I error at 0.025: 0.0252 with the simulator's info_frac, 0.0316 with info_frac = c(0.8, 1), 0.0245 with c(0.1, 1); standard error 0.0003
+EXPECTED: an error or a warning when info_frac differs from the info_frac attribute of pvals
+```
+
+**Potential fix.** Compare the two after both are normalised, and stop when they differ ([`deep_31ada01/fix_tests/DS1_fix.R`](deep_31ada01/fix_tests/DS1_fix.R)):
+
+```r
+# DS1 fix: in transform_pvalues_gsd(), in place of R/transform_pvalues_gsd.R:137-139 at 31ada01
+# fmt: skip file
+attached <- attr(pvals, "info_frac")
+if (is.null(info_frac)) {
+    info_frac <- attached
+} else if (!is.null(attached)) {
+    given_n <- .gsd_info_frac(info_frac, m = m, n_look = n_look)
+    attached_n <- .gsd_info_frac(attached, m = m, n_look = n_look)
+    if (!identical(is.na(given_n), is.na(attached_n)) ||
+        !isTRUE(all.equal(given_n, attached_n, check.attributes = FALSE))) {
+        cli::cli_abort(c(
+            "{.arg info_frac} differs from the {.field info_frac} attribute of {.arg pvals}.",
+            x = "The p-values were simulated at different information fractions, \\
+                so the boundaries would not match their correlation.",
+            i = "Leave {.arg info_frac} out to use the attribute, or remove the \\
+                attribute if the p-values come from elsewhere."
+        ))
+    }
+}
+```
+
+Tried in a session on `31ada01` ([`deep_31ada01/fix_tests/DS1_fix_test.R`](deep_31ada01/fix_tests/DS1_fix_test.R)): the code above was put in place of lines 137-139. The script's two calls with another `info_frac` (`c(0.8, 1)` and `c(0.1, 1)`) are then refused with that message. `info_frac` left out, the same fractions given again, and p-values with no attribute are accepted as before. A vector given where the attribute is a matrix with `NA` is refused, since the analyses without data differ. The full test suite was not run with the change. A warning in place of the error would suit a user who studies a misspecified design on purpose.
