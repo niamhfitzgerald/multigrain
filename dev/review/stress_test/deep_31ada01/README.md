@@ -84,4 +84,4 @@ Run each script from this folder, with the build on the library path, for exampl
 | `small_items.R` | none | `small_items.out` |
 | `fix_tests/` | see each script's header | the code of the DS1 and DS3 fixes, the scripts that put them in place in a session, C20's recheck, and their output |
 
-The `.rds` files are not kept here; the `.out` files hold the results quoted above.
+The `.rds` files are not kept here; the `.out` files hold the results quoted above. D1 ran in an `en_US.UTF-8` session. The other checks ran in R's default locale here, so where their output quotes a multigrain message (D3, D5), cli prints its bullets as `x` and `i` in place of `✖` and `ℹ`; the words are the same. The fix tests and `small_items.out` were rerun in `en_US.UTF-8` on 20 November, after a full recheck of the catalogue from a fresh clone.

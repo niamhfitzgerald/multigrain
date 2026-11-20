@@ -10,6 +10,8 @@ Niamh Fitzgerald, 18 November 2026. Two branches of GSK-Biostatistics/multigrain
 
 Neither branch has the group sequential functions, so most of this covers the fixed-sample code. One check builds `split-merge` merged into `gsd-build-spending`.
 
+Update, 20 November: on 18 November `split-merge` moved to `c441d95` (PR #56: documentation, a check that `scale` is finite, and test changes; 4 files). A dry-run merge of `c441d95` into `gsd-build-spending` (`git merge-tree`) gives the same two conflicts, in `.gitignore` and `NEWS.md`, and the merged tree still calls `.make_cauchy_mutation_multi()` (`R/optimisation_gsd.R:572`, `R/optimisation_gsd_opt.R:380`) without defining it. So SM1 still holds [read]. The other checks below were run on `ff9d907` and not rerun on `c441d95`.
+
 ## In one minute
 
 - **`split-merge` would break the group sequential optimiser if merged into `gsd-build-spending`.** Merged into `31ada01`, `graph_optimise_gsd()` stops with "could not find function \".make_cauchy_mutation_multi\"" whenever the global search runs, which is its default, and so does the joint spending search. Git reports conflicts only in `.gitignore` and `NEWS.md`, so the merge itself would not show it. Alex's report of 5 November (`dev/review/hsd_opt/search_quality_report.md` on `gsd-build-spending`) predicted this by reading the merged tree; here it was run.

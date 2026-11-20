@@ -2,10 +2,10 @@ valid gain r1 + r2: weights, transition matrix and gain the same before and afte
   (group sequential: weights 0.992581 0.00741893, gain 1.4760)
 calc_power_pvals_gsd(), gain: NaN 
 graph_optimise_gsd():
-  error: The trial success function gives NaN for this graph, not a finite number. i A division by a decision time or a rejection indicator that can be 0, such as `r1 / t1`, gives 0/0 in the trials where that hypothesis is not rejected. 
+  error: The trial success function gives NaN for this graph, not a finite number. ℹ A division by a decision time or a rejection indicator that can be 0, such as `r1 / t1`, gives 0/0 in the trials where that hypothesis is not rejected. 
 graph_optimise_gsd(global_search = FALSE):
-  error: The trial success function gives NaN for this graph, not a finite number. i A division by a decision time or a rejection indicator that can be 0, such as `r1 / t1`, gives 0/0 in the trials where that hypothesis is not rejected. 
+  error: The trial success function gives NaN for this graph, not a finite number. ℹ A division by a decision time or a rejection indicator that can be 0, such as `r1 / t1`, gives 0/0 in the trials where that hypothesis is not rejected. 
 graph_optimise() with trial_success(r1 / (r1 + r2)):
-  error: The trial success function gives NaN for this graph, not a finite number. i A division by a decision time or a rejection indicator that can be 0, such as `r1 / t1`, gives 0/0 in the trials where that hypothesis is not rejected. 
+  error: The trial success function gives NaN for this graph, not a finite number. ℹ A division by a decision time or a rejection indicator that can be 0, such as `r1 / t1`, gives 0/0 in the trials where that hypothesis is not rejected. 
 EXPECTED: an error from multigrain that the gain is not a number in some trials, for example when H1 is not rejected
 EXPECTED: the same graph before and after, then multigrain's message in place of the three GA and nloptr errors

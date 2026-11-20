@@ -1,9 +1,9 @@
 alpha 1e-11: sfLDOF spends 1e-11 at t = 1
-  transform: error: The boundary table cannot be inverted. x Fewer than two distinct positive boundaries were found. i Try a larger `grid_size` or a later information fraction.
+  transform: error: The boundary table cannot be inverted. ✖ Fewer than two distinct positive boundaries were found. ℹ Try a larger `grid_size` or a later information fraction.
 alpha 1e-12: sfLDOF spends 1.00009e-12 at t = 1
-  transform: error: Spending function for hypothesis 1 does not spend the whole level by full information. x It spends 1.00008890058234e-12 of 1e-12 at an information fraction of 1. i A spending function that stops short would silently waste alpha.
+  transform: error: Spending function for hypothesis 1 does not spend the whole level by full information. ✖ It spends 1.00008890058234e-12 of 1e-12 at an information fraction of 1. ℹ A spending function that stops short would silently waste alpha.
 alpha 1e-13: sfLDOF spends 9.99201e-14 at t = 1
-  transform: error: Spending function for hypothesis 1 does not spend the whole level by full information. x It spends 9.99200722162641e-14 of 1e-13 at an information fraction of 1. i A spending function that stops short would silently waste alpha.
+  transform: error: Spending function for hypothesis 1 does not spend the whole level by full information. ✖ It spends 9.99200722162641e-14 of 1e-13 at an information fraction of 1. ℹ A spending function that stops short would silently waste alpha.
 alpha 1e-15: sfLDOF spends 1.11022e-15 at t = 1
-  transform: error: Spending function for hypothesis 1 does not spend the whole level by full information. x It spends 1.11022302462516e-15 of 1e-15 at an information fraction of 1. i A spending function that stops short would silently waste alpha.
-info_frac = c(0.5, 0.5, 1): simulate_pvalues_gsd() accepted; transform: error: The boundary table cannot be inverted. x Fewer than two distinct positive boundaries were found. i Try a larger `grid_size` or a later information fraction. 
+  transform: error: Spending function for hypothesis 1 does not spend the whole level by full information. ✖ It spends 1.11022302462516e-15 of 1e-15 at an information fraction of 1. ℹ A spending function that stops short would silently waste alpha.
+info_frac = c(0.5, 0.5, 1): simulate_pvalues_gsd() accepted; transform: error: The boundary table cannot be inverted. ✖ Fewer than two distinct positive boundaries were found. ℹ Try a larger `grid_size` or a later information fraction. 

@@ -1615,7 +1615,7 @@ cat("EXPECTED: graph_optimise_gsd() returns the best gamma for the fixed graph\n
 Output on `gsd-build-spending` (`31ada01`):
 
 ```
-graph fixed, gamma free: No hypothesis or transition weights to optimise. i For a more detailed diagnosis run `graph_constraint()` with `diagnose = TRUE`.
+graph fixed, gamma free: No hypothesis or transition weights to optimise. ℹ For a more detailed diagnosis run `graph_constraint()` with `diagnose = TRUE`.
 one hypothesis:          `num_hyp` must be a whole number larger than or equal to 2, not the number 1.
 workaround, gain at gamma = -4: 1.3251, -3: 1.3328, -2: 1.3373, -1: 1.3368, 0: 1.3366, 1: 1.3265
 EXPECTED: graph_optimise_gsd() returns the best gamma for the fixed graph
